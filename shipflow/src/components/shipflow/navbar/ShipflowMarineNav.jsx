@@ -8,7 +8,7 @@ const ease = [0.22, 1, 0.36, 1];
 const nav = [
   {
     label: "Home",
-    href: "https://shipflow.se/home/",
+    href: "/",
   },
   {
     label: "Products",
@@ -128,7 +128,7 @@ function MobileDrawer({ open, onClose }) {
             transition={{ duration: 0.65, ease }}
           >
             <div className="mb-7 flex items-center justify-between">
-              <a href="https://shipflow.se/home/">
+              <a href="/">
                 <LogoMark />
               </a>
 
