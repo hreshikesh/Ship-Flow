@@ -1,0 +1,57 @@
+:root{
+
+  /* Colors */
+
+  --color-background:
+  --color-surface:
+  --color-surface-light:
+
+  --color-primary:
+  --color-secondary:
+  --color-accent:
+
+  --color-text:
+  --color-text-muted:
+
+  --color-border:
+
+  --color-glow:
+
+  /* Radius */
+
+  --radius-sm:
+  --radius-md:
+  --radius-lg:
+  --radius-xl:
+  --radius-pill:
+
+  /* Blur */
+
+  --blur-glass:
+  --blur-heavy:
+
+  /* Shadows */
+
+  --shadow-soft:
+  --shadow-medium:
+  --shadow-large:
+  --shadow-glow:
+
+  /* Spacing */
+
+  --space-xs:
+  --space-sm:
+  --space-md:
+  --space-lg:
+  --space-xl:
+  --space-2xl:
+  --space-3xl:
+
+  /* Duration */
+
+  --duration-fast:
+  --duration-normal:
+  --duration-slow:
+  --duration-hero:
+
+}
