@@ -4,6 +4,9 @@ import SimulationSection from "../components/shipflow/simulation/SimulationSecti
 
 import NavalArchitects from "../components/shipflow/naval-architect/NavalArchitects";
 import InterfaceResults from "../components/shipflow/InterfaceResults/InterfaceResults";
+import GlobalPresence from "../components/shipflow/GlobalPresence/GlobalPresence";
+import ServiceSection from "../components/shipflow/ServiceSection/ServiceSection";
+
 
 export default function Home() {
     return (
@@ -13,6 +16,8 @@ export default function Home() {
             <SimulationSection />
             <NavalArchitects />
             <InterfaceResults />
+            <GlobalPresence />
+            <ServiceSection/>
         </main>
     );
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 const initialState = {
-  elapsed: 0,
+  elapsed: 10,
   phase: "loader",
 
   loaderDone: false,
