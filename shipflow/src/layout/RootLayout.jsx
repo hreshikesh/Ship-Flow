@@ -1,6 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
 import ShipflowMarineNav from "../components/shipflow/navbar/ShipflowMarineNav";
 import { useArrivalState } from "../components/shipflow/arrival/arrivalStore";
+import Footer from "../components/footer/Footer";
 
 export default function RootLayout() {
   const location = useLocation();
@@ -22,6 +23,7 @@ export default function RootLayout() {
       <ShipflowMarineNav visible={showNav} solid={!isHome || navVisible} />
 
       <Outlet />
+      <Footer/>
     </>
   );
 }

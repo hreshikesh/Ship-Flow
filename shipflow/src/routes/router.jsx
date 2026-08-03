@@ -1,48 +1,64 @@
-
+// routes/router.jsx
 import { createBrowserRouter } from "react-router-dom";
+import { lazy, Suspense } from "react";
 import RootLayout from "../layout/RootLayout";
-import Home from "../pages/Home.jsx";
-import Loader from "../sections/loader/Loader.jsx";
-// import Products from "../pages/Products";
-// import Services from "../pages/Services";
-// import Resources from "../pages/Resources";
-// import Support from "../pages/Support";
-// import Company from "../pages/Company";
+import ErrorOverlay from "../ErrorOverlay.jsx";
+import ShipflowLoader from "../components/shipflow/arrival/ShipflowLoader.jsx";
+
+// ✅ Lazy-loaded pages — each becomes a separate JS chunk
+const Home = lazy(() => import("../pages/Home.jsx"));
+// // const Products = lazy(() => import("../pages/Products.jsx"));
+// const Services = lazy(() => import("../pages/Services.jsx"));
+// const Resources = lazy(() => import("../pages/Resources.jsx"));
+// const Support = lazy(() => import("../pages/Support.jsx"));
+// const Company = lazy(() => import("../pages/Company.jsx"));
+// const NotFound = lazy(() => import("../pages/NotFound.jsx"));
+
+// ✅ Wrapper for suspense fallback
+const withSuspense = (Component) => (
+  <Suspense fallback={<ShipflowLoader/>}>
+    <Component />
+  </Suspense>
+);
 
 export const router = createBrowserRouter([
-
   {
     path: "/",
     element: <RootLayout />,
+    errorElement: <ErrorOverlay/>,
     children: [
       {
         index: true,
-        element: <Home />,
+        element: withSuspense(Home),
       },
       {
         path: "home",
-        element: <Home />,
+        element: withSuspense(Home),
       },
-    //   {
-    //     path: "products",
-    //     element: <Products />,
-    //   },
-    //   {
-    //     path: "services",
-    //     element: <Services />,
-    //   },
-    //   {
-    //     path: "resources",
-    //     element: <Resources />,
-    //   },
-    //   {
-    //     path: "support",
-    //     element: <Support />,
-    //   },
-    //   {
-    //     path: "company",
-    //     element: <Company />,
-    //   },
+      // {
+      //   path: "products",
+      //   element: withSuspense(Products),
+      // },
+      // {
+      //   path: "services",
+      //   element: withSuspense(Services),
+      // },
+      // {
+      //   path: "resources",
+      //   element: withSuspense(Resources),
+      // },
+      // {
+      //   path: "support",
+      //   element: withSuspense(Support),
+      // },
+      // {
+      //   path: "company",
+      //   element: withSuspense(Company),
+      // },
+      // {
+      //   path: "*",
+      //   element: withSuspense(NotFound),
+      // },
     ],
   },
 ]);

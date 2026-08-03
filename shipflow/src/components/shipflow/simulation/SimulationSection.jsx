@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 export default function SimulationSection() {
   return (
     <section
-      className="relative overflow-hidden bg-[#02070D] py-20 sm:py-28 md:py-32 lg:py-40"
+      className="relative overflow-hidden bg-[#02070D] py-10 sm:py-12 md:py-12 lg:py-12"
     >
       {/* Background Effects */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(111,195,223,.08),transparent_70%)]" />

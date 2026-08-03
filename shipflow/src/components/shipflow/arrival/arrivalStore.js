@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 const initialState = {
-  elapsed: 10,
+  elapsed: 0,
   phase: "loader",
 
   loaderDone: false,
@@ -13,7 +13,7 @@ const initialState = {
   pageProgress: 0,
 
   heroComplete: false,
-  aboutUnlocked: false,
+  aboutUnlocked: false,   // 🔑 stays true once hero was completed
 
   textVisible: false,
   ctaVisible: false,
@@ -31,7 +31,6 @@ function hasChanged(patch) {
   for (const key in patch) {
     if (state[key] !== patch[key]) return true;
   }
-
   return false;
 }
 
@@ -41,12 +40,8 @@ export function getArrivalState() {
 
 export function setArrivalState(patch) {
   if (!hasChanged(patch)) return;
-
   Object.assign(state, patch);
-
-  listeners.forEach((listener) => {
-    listener({ ...state });
-  });
+  listeners.forEach((listener) => listener({ ...state }));
 }
 
 export function setArrivalFrameState(patch) {
@@ -55,10 +50,7 @@ export function setArrivalFrameState(patch) {
 
 export function resetArrivalState() {
   Object.assign(state, initialState);
-
-  listeners.forEach((listener) => {
-    listener({ ...state });
-  });
+  listeners.forEach((listener) => listener({ ...state }));
 }
 
 export function subscribeArrival(listener) {

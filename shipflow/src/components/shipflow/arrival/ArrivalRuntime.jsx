@@ -8,26 +8,18 @@ import {
   setArrivalState,
 } from "./arrivalStore";
 
-export const HERO_SCROLL_DISTANCE = 3600;
-
-const FALLBACK_LOADER_END = 2.8;
+export const HERO_SCROLL_DISTANCE = 1800;
+const LOADER_END = 10.5;
 
 function clamp01(value) {
   return Math.min(1, Math.max(0, value));
 }
 
-function getLoaderEnd() {
-  return CONFIG?.arrival?.loaderEnd ?? FALLBACK_LOADER_END;
-}
-
 function getPhase({ elapsed, progress }) {
-  if (elapsed < getLoaderEnd()) return "loader";
-
-  if (progress < 0.06) return "brand";
-  if (progress < 0.55) return "engineering";
-  if (progress < 0.82) return "marineRoute";
-
-  return "shipJourney";
+  if (elapsed < LOADER_END) return "loader";
+  if (progress < 0.08) return "brand";
+  if (progress < 0.6) return "engineering";
+  return "hero";
 }
 
 export default function ArrivalRuntime() {
@@ -35,6 +27,8 @@ export default function ArrivalRuntime() {
   const rafRef = useRef(null);
   const lenisRef = useRef(null);
   const snappedRef = useRef(false);
+
+  const heroEverCompletedRef = useRef(false);
 
   const lastUIStateRef = useRef({
     phase: "loader",
@@ -59,12 +53,12 @@ export default function ArrivalRuntime() {
     body.classList.add("shipflow-lenis");
 
     const lenis = new Lenis({
-      duration: 1.25,
-      easing: (t) => 1 - Math.pow(1 - t, 3),
+      duration: 1.4,
+      easing: (t) => 1 - Math.pow(1 - t, 3.5),
       smoothWheel: true,
       smoothTouch: false,
-      wheelMultiplier: 0.68,
-      touchMultiplier: 1,
+      wheelMultiplier: 0.85,
+      touchMultiplier: 1.2,
       infinite: false,
     });
 
@@ -75,13 +69,17 @@ export default function ArrivalRuntime() {
       const pageProgress = clamp01(scroll / Math.max(limit, 1));
       const heroComplete = heroProgress >= 0.995;
 
+      if (heroComplete) {
+        heroEverCompletedRef.current = true;
+      }
+
       setArrivalFrameState({
         scroll,
         scrollLimit: limit,
         scrollProgress: heroProgress,
         pageProgress,
         heroComplete,
-        aboutUnlocked: heroComplete,
+        aboutUnlocked: heroComplete || heroEverCompletedRef.current,
       });
     });
 
@@ -91,22 +89,26 @@ export default function ArrivalRuntime() {
       lenis.raf(time);
 
       const current = getArrivalState();
-
       const progress = current.scrollProgress ?? 0;
       const phase = getPhase({ elapsed, progress });
       const heroComplete = progress >= 0.995;
-      const loaderDone = elapsed >= getLoaderEnd();
+      const loaderDone = elapsed >= LOADER_END;
+
+      if (heroComplete) {
+        heroEverCompletedRef.current = true;
+      }
 
       setArrivalFrameState({
         elapsed,
         phase,
         loaderDone,
         heroComplete,
-        aboutUnlocked: heroComplete,
+        aboutUnlocked: heroComplete || heroEverCompletedRef.current,
       });
 
       const introVisible =
         loaderDone &&
+        elapsed > LOADER_END + 0.2 &&
         progress < 0.08 &&
         !heroComplete;
 
@@ -115,19 +117,20 @@ export default function ArrivalRuntime() {
         loaderDone,
         introVisible,
 
-        textVisible: progress > 0.08 && !heroComplete,
-        ctaVisible: progress > 0.16 && !heroComplete,
-        mouseEnabled: progress > 0.16 && !heroComplete,
+        textVisible: loaderDone && progress > 0.08 && !heroComplete,
+        ctaVisible: loaderDone && progress > 0.2 && !heroComplete,
+        mouseEnabled: loaderDone && progress > 0.2 && !heroComplete,
 
-        navVisible: progress > 0.9,
-        routeVisible: progress > 0.55 && !heroComplete,
+        // 🔑 FIXED: Nav appears ONLY after 100% (heroComplete OR ever completed)
+        navVisible: heroComplete || heroEverCompletedRef.current,
+
+        routeVisible: progress > 0.55 && progress < 0.95 && !heroComplete,
 
         heroComplete,
-        aboutUnlocked: heroComplete,
+        aboutUnlocked: heroComplete || heroEverCompletedRef.current,
       };
 
       const last = lastUIStateRef.current;
-
       const changed =
         last.phase !== nextUIState.phase ||
         last.loaderDone !== nextUIState.loaderDone ||
@@ -150,17 +153,16 @@ export default function ArrivalRuntime() {
 
         setTimeout(() => {
           const about = document.getElementById("about");
-
           if (about && lenisRef.current) {
             lenisRef.current.scrollTo(about, {
               offset: 0,
-              duration: 1.05,
+              duration: 1.2,
             });
           }
-        }, 220);
+        }, 200);
       }
 
-      if (!heroComplete) {
+      if (progress < 0.9) {
         snappedRef.current = false;
       }
 
@@ -171,30 +173,19 @@ export default function ArrivalRuntime() {
 
     const preventLoaderScroll = (event) => {
       const current = getArrivalState();
-
       if (!current.loaderDone) {
         event.preventDefault();
       }
     };
 
-    window.addEventListener("wheel", preventLoaderScroll, {
-      passive: false,
-    });
-
-    window.addEventListener("touchmove", preventLoaderScroll, {
-      passive: false,
-    });
+    window.addEventListener("wheel", preventLoaderScroll, { passive: false });
+    window.addEventListener("touchmove", preventLoaderScroll, { passive: false });
 
     return () => {
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
-
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
       window.removeEventListener("wheel", preventLoaderScroll);
       window.removeEventListener("touchmove", preventLoaderScroll);
-
       lenis.destroy();
-
       html.classList.remove("shipflow-lenis");
       body.classList.remove("shipflow-lenis");
     };
