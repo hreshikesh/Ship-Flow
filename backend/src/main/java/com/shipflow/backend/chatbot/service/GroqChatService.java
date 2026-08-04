@@ -26,19 +26,42 @@ public class GroqChatService {
 
     private static final String SYSTEM_PROMPT = """
             You are SHIPFLOW AI, an expert assistant for the SHIPFLOW \
-            computational fluid dynamics (CFD) software.
+            computational fluid dynamics (CFD) software by FLOWTECH.
             
-            Rules you MUST follow:
-            - Answer ONLY based on the documentation context provided
-            - Never make up information not present in the context
-            - Be concise, clear and professional
-            - Use natural language, not raw copied text
-            - Format with line breaks for readability
-            - If context is insufficient, say so honestly
-            - Tone: like a senior CFD engineer helping a colleague
+            SHIPFLOW modules you know:
+            - XFLOW: geometry definition and command interface
+            - XMESH: mesh generation for potential flow
+            - XPAN: potential flow (panel method) solver
+            - XBOUND: boundary layer solver
+            - XGRID / XGR8: structured grid generation for RANS
+            - XCHAP: RANS solver with VOF, wake, actuator disk
+            - XPOST: post-processing and visualization
+            
+            YOUR RULES:
+            1. Answer using the documentation context provided
+            2. NEVER mention "context", "documentation", "PDF" or \
+               "based on the provided" — just answer naturally
+            3. Sound like a knowledgeable SHIPFLOW expert, NOT a \
+               document search engine
+            4. If context is technical (SSH, MPI, cluster setup), \
+               explain it in relation to SHIPFLOW usage
+            5. Use markdown: **bold** for modules/commands, \
+               bullet lists for steps, `code` for syntax
+            6. If context truly doesn't answer the question, \
+               acknowledge gaps and suggest which SHIPFLOW module \
+               might help
+            7. Be conversational and helpful — like ChatGPT
+            
+            NEVER SAY:
+            - "Based on the SHIPFLOW documentation"
+            - "The context mentions"
+            - "According to the provided information"
+            - "The documentation shows"
+            
+            INSTEAD JUST ANSWER DIRECTLY.
             """;
 
-    // ── Main entry point ────────────────────────────────────────
+    // ── Main entry ──────────────────────────────────────────────
     public String generateAnswer(
             String userMessage,
             String context,
@@ -70,21 +93,21 @@ public class GroqChatService {
             }
 
             log.warn("Non-OK from Groq: {}", response.getStatusCode());
-            return fallback(context);
+            return politeFallback();  // ✅ Never leak context
 
         } catch (HttpClientErrorException e) {
             log.error("Groq client error: {} | {}",
                     e.getStatusCode(),
                     e.getResponseBodyAsString());
-            return fallback(context);
+            return politeFallback();
 
         } catch (Exception e) {
             log.error("Groq chat failed: {}", e.getMessage());
-            return fallback(context);
+            return politeFallback();
         }
     }
 
-    // ── Message builder ─────────────────────────────────────────
+    // ── Build messages using SYSTEM ROLE (not fake turns) ───────
     private List<Map<String, Object>> buildMessages(
             String userMessage,
             String context,
@@ -92,28 +115,21 @@ public class GroqChatService {
 
         List<Map<String, Object>> messages = new ArrayList<>();
 
-        // 1. System prompt
+        // ✅ Proper system message (Groq/OpenAI supports it)
         messages.add(Map.of(
                 "role",    "system",
                 "content", SYSTEM_PROMPT
         ));
 
-        // 2. Conversation history (last 6 messages)
+        // ✅ Add history as proper conversation turns
         if (history != null && !history.isEmpty()) {
             int start = Math.max(0, history.size() - 6);
             history.subList(start, history.size()).forEach(h -> {
-                // Convert from Gemini format to OpenAI format
-                String role = h.get("role").toString();
-                // Gemini uses "model", OpenAI/Groq uses "assistant"
+                String role = h.getOrDefault("role", "user").toString();
                 if ("model".equals(role)) role = "assistant";
 
-                @SuppressWarnings("unchecked")
-                List<Map<String, Object>> parts =
-                        (List<Map<String, Object>>) h.get("parts");
-
-                String content = parts.get(0)
-                        .get("text")
-                        .toString();
+                String content = h.getOrDefault("content", "").toString();
+                if (content.isBlank()) return;
 
                 messages.add(Map.of(
                         "role",    role,
@@ -122,7 +138,7 @@ public class GroqChatService {
             });
         }
 
-        // 3. Current message with context
+        // ✅ Add ONLY the current question + context (no history dump)
         String prompt = buildPrompt(userMessage, context);
         messages.add(Map.of(
                 "role",    "user",
@@ -132,27 +148,30 @@ public class GroqChatService {
         return messages;
     }
 
-    // ── Prompt builder ──────────────────────────────────────────
+    // ── Prompt with context clearly separated ───────────────────
     private String buildPrompt(String userMessage, String context) {
+        if (context == null || context.isBlank()) {
+            return userMessage;
+        }
+
         return String.format("""
-                SHIPFLOW DOCUMENTATION CONTEXT:
-                --------------------------------
+                Reference material to help you answer:
+                ---
                 %s
-                --------------------------------
+                ---
                 
-                USER QUESTION: %s
+                Question: %s
                 
-                Using ONLY the documentation context above, provide a \
-                clear, accurate and helpful answer. If the context does \
-                not contain enough information to answer fully, say so \
-                and suggest what the user could search for instead.
+                Answer naturally as a SHIPFLOW expert. Do NOT \
+                reference "the documentation" or "the context" — \
+                just give a direct, helpful answer.
                 """,
                 context,
                 userMessage
         );
     }
 
-    // ── Response parser ─────────────────────────────────────────
+    // ── Parser ──────────────────────────────────────────────────
     private String parseResponse(String responseBody) throws Exception {
         JsonNode root = objectMapper.readTree(responseBody);
 
@@ -164,23 +183,45 @@ public class GroqChatService {
 
         if (content.isMissingNode() || content.asText().isBlank()) {
             log.warn("Empty content in Groq response");
-            return "I received an empty response. Please try again.";
+            return politeFallback();
         }
 
-        return content.asText().trim();
+        String answer = content.asText().trim();
+
+        // ✅ Post-process: remove any leaked "context" phrases
+        return cleanResponse(answer);
     }
 
-    // ── Fallback ────────────────────────────────────────────────
-    private String fallback(String context) {
-        if (context == null || context.isBlank()) {
-            return "I couldn't find relevant information in the " +
-                    "SHIPFLOW documentation. Please try rephrasing.";
-        }
+    // ── Clean AI response ───────────────────────────────────────
+    private String cleanResponse(String answer) {
+        return answer
+                // Remove leaked phrases
+                .replaceAll("(?i)based on the (provided )?" +
+                        "(shipflow )?documentation[,:]?\\s*", "")
+                .replaceAll("(?i)according to the (provided )?" +
+                        "(context|documentation)[,:]?\\s*", "")
+                .replaceAll("(?i)the (provided )?context " +
+                                "(mentions|shows|states|indicates)[,:]?\\s*",
+                        "")
+                .replaceAll("(?i)PREVIOUS CONVERSATION:[\\s\\S]*?" +
+                        "(?=\\n\\n|$)", "")
+                .replaceAll("(?i)CURRENT CONTEXT:[\\s\\S]*?" +
+                        "(?=\\n\\n|$)", "")
+                .trim();
+    }
 
-        String trimmed = context.length() > 600
-                ? context.substring(0, 600) + "..."
-                : context;
-
-        return "Based on the SHIPFLOW documentation:\n\n" + trimmed;
+    // ── Polite fallback (never leaks raw context) ───────────────
+    private String politeFallback() {
+        return """
+                I'm having trouble generating a response right now. \
+                Could you try rephrasing your question?
+                
+                You can ask me about:
+                - **XFLOW** commands and geometry
+                - **XPAN** potential flow solver
+                - **XCHAP** RANS solver
+                - **XMESH** or **XGRID** mesh generation
+                - Hull design, resistance, or propulsion
+                """;
     }
 }

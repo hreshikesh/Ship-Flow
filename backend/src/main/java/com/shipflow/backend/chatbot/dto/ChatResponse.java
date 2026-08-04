@@ -14,8 +14,10 @@ public class ChatResponse {
     private String        conversationId;
     private LocalDateTime timestamp;
 
-    // ✅ Fields your frontend already expects
-    private List<String>  sources;
-    private Double        confidence;
-    private String        searchMode;
+    // ── Intelligence fields ────────────────────────────────────
+    private List<String>  suggestions;   // follow-up questions
+    private List<String>  sources;       // doc sources used
+    private Double        confidence;    // 0.0 - 1.0
+    private String        intent;        // detected intent
+    private String        searchMode;    // hybrid/keyword
 }
