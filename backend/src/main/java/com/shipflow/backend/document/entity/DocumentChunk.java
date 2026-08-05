@@ -1,15 +1,18 @@
 package com.shipflow.backend.document.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "document_chunks")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class DocumentChunk {
 
     @Id
@@ -18,21 +21,20 @@ public class DocumentChunk {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "document_id", nullable = false)
+    @JsonIgnore
     private Document document;
 
-    @Column(name = "page_number")
     private Integer pageNumber;
-
-    @Column(name = "chunk_index")
     private Integer chunkIndex;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    // ✅ LONGVARCHAR = TEXT in PostgreSQL, no oid, no CLOB
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
+    @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "token_count")
-    private Integer tokenCount;
-
-    // Stored as JSON string "[0.1, 0.2, ...]"
-    @Column(columnDefinition = "TEXT")
+    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
+    @Column(name = "embedding", columnDefinition = "TEXT")
     private String embedding;
+
+    private Integer tokenCount;
 }
