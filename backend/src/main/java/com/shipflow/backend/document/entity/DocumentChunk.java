@@ -3,8 +3,6 @@ package com.shipflow.backend.document.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(name = "document_chunks")
@@ -27,12 +25,12 @@ public class DocumentChunk {
     private Integer pageNumber;
     private Integer chunkIndex;
 
-    // ✅ LONGVARCHAR = TEXT in PostgreSQL, no oid, no CLOB
-    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
+    // ✅ Removed @JdbcTypeCode - columnDefinition = "TEXT" is enough
+    // Hibernate won't try to ALTER the column type anymore
     @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
-    @JdbcTypeCode(SqlTypes.LONGVARCHAR)
+    // ✅ Removed @JdbcTypeCode - same fix
     @Column(name = "embedding", columnDefinition = "TEXT")
     private String embedding;
 

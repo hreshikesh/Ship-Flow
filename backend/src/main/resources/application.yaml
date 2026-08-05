@@ -11,18 +11,6 @@ spring:
     password: ${DATABASE-PASSWORD}
     driver-class-name: org.postgresql.Driver
 
-    # ✅ Add HikariCP settings
-    hikari:
-      connection-timeout: 30000          # 30 seconds to get a connection
-      idle-timeout: 600000               # 10 minutes idle
-      max-lifetime: 1800000              # 30 minutes max connection life
-      maximum-pool-size: 5              # Render free tier limit
-      minimum-idle: 2
-      keepalive-time: 60000             # Send keepalive every 60s
-      validation-timeout: 5000
-      connection-test-query: SELECT 1   # ✅ Test connection before use
-      leak-detection-threshold: 60000
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -30,13 +18,8 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        # ✅ These prevent connection drops during schema migration
-        jdbc:
-          lob:
-            non_contextual_creation: true
-        temp:
-          use_jdbc_metadata_defaults: false
     defer-datasource-initialization: true
+
 
   mail:
     host: smtp.gmail.com
@@ -50,6 +33,7 @@ spring:
           starttls:
             enable: true
 
+
 gemini:
   api:
     key: ${GEMINI-API}
@@ -58,14 +42,12 @@ gemini:
     embedding-dimension: 768
     temperature: 0.2
     max-output-tokens: 2048
-
 groq:
   api:
     key: ${GROQ-API}
     model: llama-3.3-70b-versatile
     max-tokens: 1024
     temperature: 0.2
-
 rag:
   chunk-size: 600
   chunk-overlap: 150
