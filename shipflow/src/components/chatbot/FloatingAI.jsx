@@ -1,6 +1,8 @@
+// FloatingAI.jsx
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import ChatPanel from "./ChatPanel";
+import { useArrivalState } from "../shipflow/arrival/arrivalStore"; // 👈 import this
 
 function HullIcon({ size = 20 }) {
   return (
@@ -51,14 +53,17 @@ export default function FloatingAI() {
   const [hovered, setHovered] = useState(false);
   const [showHint, setShowHint] = useState(false);
 
+  const { navVisible } = useArrivalState(); // 👈 get navVisible
+
   useEffect(() => {
+    if (!navVisible) return; // 👈 only start hint timer after nav appears
     const show = setTimeout(() => setShowHint(true), 4000);
     const hide = setTimeout(() => setShowHint(false), 9000);
     return () => {
       clearTimeout(show);
       clearTimeout(hide);
     };
-  }, []);
+  }, [navVisible]); // 👈 depend on navVisible
 
   return (
     <>
@@ -67,7 +72,8 @@ export default function FloatingAI() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {!open && (
+        {/* 👇 Add navVisible condition here — same gate as the navbar */}
+        {!open && navVisible && (
           <motion.div
             className="fixed bottom-6 right-6 z-[9999]"
             initial={{ opacity: 0, scale: 0, y: 20 }}
