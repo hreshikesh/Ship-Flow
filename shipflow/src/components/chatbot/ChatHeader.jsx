@@ -1,6 +1,6 @@
 import { X, Trash2, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
-
+import image from "../../assets/images/naval-architect/naval1.png";
 function HeaderButton({ onClick, title, children, danger = false }) {
   return (
     <motion.button
@@ -35,7 +35,7 @@ export default function ChatHeader({
         {/* Left: Branding */}
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-400 to-blue-500 shadow-[0_0_16px_rgba(6,182,212,0.25)]">
-            <span className="text-sm font-bold text-black">AI</span>
+            <img src={image} alt="SHIPFLOW Assistant" className="h-full w-full object-cover" />
           </div>
 
           <div>
