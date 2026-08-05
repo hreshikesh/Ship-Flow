@@ -17,6 +17,7 @@ public class CorsConfig {
 
         config.addAllowedOrigin("http://localhost:5174");
         config.addAllowedOrigin("http://localhost:5173");
+        config.addAllowedOrigin("https://ship-flow-umber.vercel.app");
 
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
