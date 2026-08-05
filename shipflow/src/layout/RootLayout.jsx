@@ -1,7 +1,8 @@
 import { Outlet, useLocation } from "react-router-dom";
-import ShipflowMarineNav from "../components/shipflow/navbar/ShipflowMarineNav";
+import ShipflowMarineNav from "../components/navbar/ShipflowMarineNav";
 import { useArrivalState } from "../components/shipflow/arrival/arrivalStore";
 import Footer from "../components/footer/Footer";
+import FloatingAI from "../components/chatbot/FloatingAI";
 
 export default function RootLayout() {
   const location = useLocation();
@@ -9,13 +10,7 @@ export default function RootLayout() {
 
   const { navVisible, loaderDone } = useArrivalState();
 
-  /*
-    Home:
-    navbar appears after scroll, controlled by ArrivalRuntime.
-
-    Other pages:
-    navbar is always visible.
-  */
+  
   const showNav = isHome ? navVisible : true;
 
   return (
@@ -23,6 +18,7 @@ export default function RootLayout() {
       <ShipflowMarineNav visible={showNav} solid={!isHome || navVisible} />
 
       <Outlet />
+      <FloatingAI/>
       <Footer/>
     </>
   );

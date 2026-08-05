@@ -1,6 +1,6 @@
 export const CONFIG = {
     DEBUG_ORBIT: false,
-    DEBUG_THEATRE: false,
+
 
     ship: {
         url: "/models/cargo_ship_loaded.glb",

@@ -1,8 +1,8 @@
 // ShipflowMarineNav.jsx
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useArrivalState } from "../arrival/arrivalStore";
-import logo from "../../../assets/images/logo/image.png";
+import { useArrivalState } from "../shipflow/arrival/arrivalStore";
+import logo from "../../assets/images/logo/image.png";
 
 const ease = [0.22, 1, 0.36, 1];
 

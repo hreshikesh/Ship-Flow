@@ -5,18 +5,25 @@
 @layer theme;
 
 /* ============================================
-   ROOT — cleaned & de-duplicated
+   ROOT
 ============================================ */
 :root {
   color-scheme: dark;
-  --ink-void: #04070d;
+  --ink-void:     #04070d;
   --ink-charcoal: #0a1018;
-  --ink-steel: #6b7683;
-  --ink-off: #e6ecf2;
-  --ink-ocean: #0b3a5c;
-  --ink-cyan: #7fd8e5;
+  --ink-steel:    #6b7683;
+  --ink-off:      #e6ecf2;
+  --ink-ocean:    #0b3a5c;
+  --ink-cyan:     #7fd8e5;
+
+  /* Chat scrollbar tokens */
+  --scrollbar-thumb:       rgba(6, 182, 212, 0.15);
+  --scrollbar-thumb-hover: rgba(6, 182, 212, 0.35);
 }
 
+/* ============================================
+   BASE
+============================================ */
 html,
 body,
 #root {
@@ -26,10 +33,8 @@ body,
   color: var(--ink-off);
   font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeSpeed; /* ✅ faster than optimizeLegibility */
+  text-rendering: optimizeSpeed;
 }
-
-/* ✅ REMOVED: overflow: hidden on body — was blocking scroll, forcing extra layout */
 
 .font-mono {
   font-family: "JetBrains Mono", ui-monospace, monospace;
@@ -41,10 +46,51 @@ body,
 }
 
 /* ============================================
-   PERFORMANCE HINTS — global
+   SCROLLBARS
+   ─ Global:  hidden (keeps your site clean)
+   ─ .chat-scroll: visible cyan (chat panel only)
 ============================================ */
 
-/* Reduce motion for users who want it */
+/* ✅ Global — hidden everywhere by default */
+* {
+  scrollbar-width: none;        /* Firefox */
+  scrollbar-color: transparent transparent;
+}
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none;                /* Chrome / Safari */
+}
+
+/* ✅ Chat panel only — thin cyan scrollbar */
+.chat-scroll {
+  scrollbar-width: thin;        /* Firefox */
+  scrollbar-color: var(--scrollbar-thumb) transparent;
+}
+
+.chat-scroll::-webkit-scrollbar {
+  display: block;
+  width: 5px;
+  height: 5px;
+}
+
+.chat-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-thumb);
+  border-radius: 99px;
+  transition: background-color 0.2s ease;
+}
+
+.chat-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-thumb-hover);
+}
+
+/* ============================================
+   PERFORMANCE HINTS
+============================================ */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -55,7 +101,6 @@ body,
   }
 }
 
-/* Force GPU acceleration only where needed */
 .gpu {
   transform: translateZ(0);
   will-change: transform;
@@ -63,10 +108,9 @@ body,
 }
 
 /* ============================================
-   ANIMATIONS — optimized
+   ANIMATIONS
    Only animate: transform + opacity (compositor-only)
 ============================================ */
-
 @keyframes softFadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -84,17 +128,29 @@ body,
   100% { transform: translateX(200%); opacity: 0; }
 }
 
-/* ✅ REMOVED filter: blur() — huge GPU cost */
 @keyframes wordReveal {
   from { opacity: 0; transform: translate3d(0, 14px, 0); }
   to   { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 @keyframes caret {
-  0%, 49%   { opacity: 1; }
+  0%,  49%  { opacity: 1; }
   50%, 100% { opacity: 0; }
 }
 
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-33.333%); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+/* ============================================
+   ANIMATION UTILITIES
+============================================ */
 .caret::after {
   content: "▍";
   margin-left: 4px;
@@ -102,11 +158,24 @@ body,
   animation: caret 1s steps(1) infinite;
 }
 
-/* ============================================
-   ✅ REPLACED: SVG grain → cheap static noise
-   The old animated SVG was repainting constantly
-============================================ */
+.animate-marquee {
+  animation: marquee 40s linear infinite;
+  will-change: transform;
+}
 
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+.animate-shimmer {
+  animation: shimmer 6s ease-in-out infinite;
+  background-size: 200% 100%;
+}
+
+/* ============================================
+   GRAIN OVERLAY
+   Static noise — no animation, no SVG, no repaint
+============================================ */
 .grain::before {
   content: "";
   position: absolute;
@@ -119,16 +188,11 @@ body,
     transparent 1px
   );
   background-size: 3px 3px;
-  /* ❌ NO animation, NO mix-blend-mode, NO SVG data URI */
 }
 
-/* ============================================
-   SCROLLBAR
-============================================ */
-::-webkit-scrollbar { width: 0; height: 0; }
 
 /* ============================================
-   LENIS SMOOTH SCROLL (no duplication)
+   LENIS SMOOTH SCROLL
 ============================================ */
 html.shipflow-lenis,
 html.shipflow-lenis body {
@@ -139,8 +203,10 @@ html.shipflow-lenis body {
   scroll-behavior: auto !important;
 }
 
+/* ✅ This is the key rule — tells Lenis to not scroll these elements */
 .shipflow-lenis.lenis-smooth [data-lenis-prevent] {
   overscroll-behavior: contain;
+  overflow: auto;            /* ← Add this line */
 }
 
 .shipflow-lenis.lenis-stopped {
@@ -148,51 +214,13 @@ html.shipflow-lenis body {
 }
 
 /* ============================================
-   PERSPECTIVE — used sparingly
-   Only add class where 3D actually happens
+   UTILITIES
 ============================================ */
 .perspective {
-  perspective: 1200px; /* ✅ reduced from 2000px */
+  perspective: 1200px;
 }
 
-/* ✅ REMOVED: transform-style on origin-left/right (Tailwind classes)
-   You were overriding Tailwind utilities which broke normal use */
-
-/* ============================================
-   CONTENT VISIBILITY — huge win
-   Skip rendering off-screen sections
-============================================ */
 .cv-auto {
   content-visibility: auto;
   contain-intrinsic-size: 800px;
-}
-/* Marquee animation for footer strip */
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-33.333%); }
-}
-
-.animate-marquee {
-  animation: marquee 40s linear infinite;
-  will-change: transform;
-}
-
-/* Pause on hover if you want */
-.animate-marquee:hover {
-  animation-play-state: paused;
-}
-
-/* Shimmer animation for watermark */
-@keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
-  100% {
-    background-position: 200% 0;
-  }
-}
-
-.animate-shimmer {
-  animation: shimmer 6s ease-in-out infinite;
-  background-size: 200% 100%;
 }

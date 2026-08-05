@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 
 import { useArrivalState } from "./arrivalStore";
-import ShipflowMarineNav from "../navbar/ShipflowMarineNav";
+import ShipflowMarineNav from "../../navbar/ShipflowMarineNav";
 import logo from "../../../assets/images/logo/image.png";
 const ease = [0.22, 1, 0.36, 1];
 
