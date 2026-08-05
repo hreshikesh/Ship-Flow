@@ -15,16 +15,19 @@ public class FullTextSearchInitializer {
 
     private final JdbcTemplate jdbcTemplate;
 
-    /**
-     * Runs AFTER Spring Boot fully starts (after Hibernate DDL).
-     * Sets up PostgreSQL full-text search infrastructure.
-     */
     @EventListener(ApplicationReadyEvent.class)
     @Transactional
     public void initializeFullTextSearch() {
         log.info("═══ Initializing Full-Text Search ═══");
 
         try {
+            // ✅ Check if document_chunks table exists before doing anything
+            if (!tableExists("document_chunks")) {
+                log.warn("⚠️ document_chunks table does not exist yet — skipping full-text search init");
+                log.warn("⚠️ Table will be created by Hibernate. Restart or re-deploy to complete init.");
+                return;
+            }
+
             // 1. Enable pg_trgm extension for fuzzy search
             jdbcTemplate.execute(
                     "CREATE EXTENSION IF NOT EXISTS pg_trgm");
@@ -89,9 +92,26 @@ public class FullTextSearchInitializer {
             log.info("═══ Full-Text Search Ready ═══");
 
         } catch (Exception e) {
-            log.error("❌ Full-text search init failed: {}",
-                    e.getMessage(), e);
+            log.error("❌ Full-text search init failed: {}", e.getMessage(), e);
             // Don't crash the app — search will fall back to LIKE
+        }
+    }
+
+    // ✅ Safely check if a table exists in PostgreSQL
+    private boolean tableExists(String tableName) {
+        try {
+            String sql = """
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_schema = 'public' 
+                    AND table_name = ?
+                )
+                """;
+            Boolean exists = jdbcTemplate.queryForObject(sql, Boolean.class, tableName);
+            return Boolean.TRUE.equals(exists);
+        } catch (Exception e) {
+            log.warn("⚠️ Could not check if table '{}' exists: {}", tableName, e.getMessage());
+            return false;
         }
     }
 }
