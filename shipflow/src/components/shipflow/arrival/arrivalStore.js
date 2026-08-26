@@ -2,14 +2,15 @@
 import { useState, useEffect } from "react";
 
 const INTRO_KEY = "sandeb-marine-intro-seen";
-const hasSeenIntro = typeof window !== "undefined" && sessionStorage.getItem(INTRO_KEY) === "1";
+const hasSeenIntro =
+  typeof window !== "undefined" && sessionStorage.getItem(INTRO_KEY) === "1";
 
 const initialState = {
   elapsed: 0,
   phase: hasSeenIntro ? "ready" : "loader",
 
   loaderDone: hasSeenIntro,
-  introVisible: false,
+  introVisible: true, // 🔑 At the top of page: ONLY Brand Intro logo is visible
 
   scroll: 0,
   scrollLimit: 1,
@@ -19,12 +20,12 @@ const initialState = {
   heroComplete: false,
   aboutUnlocked: hasSeenIntro,
 
-  // 🔑 Default setup represents the start of the page (scroll = 0)
-  textVisible: hasSeenIntro,    // Left side visible immediately
-  ctaVisible: hasSeenIntro,     // Scroll hint visible immediately
+  // 🔑 Left and right sections start as FALSE (Hidden until scroll)
+  textVisible: false,
+  ctaVisible: false,
   mouseEnabled: hasSeenIntro,
-  navVisible: hasSeenIntro,
-  routeVisible: false,          // Right side hidden (only reveals on scroll)
+  navVisible: false,
+  routeVisible: false,
 
   sonarMode: false,
 };
@@ -53,6 +54,7 @@ export function setArrivalFrameState(patch) {
   Object.assign(state, patch);
 }
 
+// 🔑 Resets cleanly to top-of-hero (Logo only, text & cards hidden)
 export function resetArrivalState() {
   const wasLoaderDone = state.loaderDone;
   const wasAboutUnlocked = state.aboutUnlocked;
@@ -62,10 +64,12 @@ export function resetArrivalState() {
   if (wasLoaderDone) {
     state.loaderDone = true;
     state.phase = "ready";
-    state.textVisible = true;
-    state.routeVisible = false; // Hidden initially at top
-    state.ctaVisible = true;
-    state.navVisible = true;
+    state.introVisible = true;  // Logo intro is visible
+    state.textVisible = false;   // Left text hidden
+    state.routeVisible = false;  // Right cards hidden
+    state.ctaVisible = false;
+    state.navVisible = false;
+    state.heroComplete = false;
   }
   if (wasAboutUnlocked) {
     state.aboutUnlocked = true;
@@ -74,7 +78,7 @@ export function resetArrivalState() {
   listeners.forEach((listener) => listener({ ...state }));
 }
 
-// Clears overlays safely on unmount
+// 🔑 Clears transient overlays safely on unmount
 export function resetTransientOverlay() {
   setArrivalState({
     introVisible: false,
@@ -84,13 +88,14 @@ export function resetTransientOverlay() {
   });
 }
 
-// 🔑 Initializes the exact top-of-page stage (scroll = 0) before fade-in
+// 🔑 EXPORT: Sets the exact top-of-page state (scroll = 0)
 export function prepareHeroState() {
   setArrivalState({
     heroComplete: false,
-    textVisible: true,     // Left copy visible
-    routeVisible: false,   // Right product cards hidden
-    ctaVisible: true,      // Scroll down hint visible
+    introVisible: true,   // Show brand intro logo first
+    textVisible: false,   // Left copy hidden until scroll
+    routeVisible: false,  // Right product cards hidden until scroll
+    ctaVisible: false,
   });
 }
 

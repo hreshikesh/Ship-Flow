@@ -13,29 +13,24 @@ import WhatsAppButton from "../components/whatsappbutton/WhatsAppButton.jsx";
 const INTRO_KEY = "sandeb-marine-intro-seen";
 
 /* ============================================================
-   SCROLL TO TOP HELPER COMPONENT
+   SCROLL TO TOP HELPER (Only resets on hard pathname changes)
 ============================================================ */
-function ScrollToTop({ behavior = "smooth" }) {
-  const { pathname, hash } = useLocation();
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  const prevPathname = useRef(pathname);
 
   useEffect(() => {
-    // If URL has an anchor hash (#section), let the browser scroll to that element
-    if (hash) {
-      const id = hash.replace("#", "");
-      const el = document.getElementById(id);
-      if (el) {
-        el.scrollIntoView({ behavior });
-        return;
-      }
+    // 🔑 Only reset Y-scroll to 0 if we navigated to a completely different page.
+    // This ignores internal hashes/scrolling so the Y=0 start state remains pristine.
+    if (prevPathname.current !== pathname) {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: "instant",
+      });
     }
-
-    // Scroll to top of page on route change
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior,
-    });
-  }, [pathname, hash, behavior]);
+    prevPathname.current = pathname;
+  }, [pathname]);
 
   return null;
 }
@@ -48,33 +43,43 @@ export default function RootLayout() {
   const isHome = location.pathname === "/" || location.pathname === "/home";
   const { navVisible } = useArrivalState();
 
+  // Main loader ONLY runs once on initial website arrival if landing on Home
   const [showIntro, setShowIntro] = useState(() => {
     if (typeof window === "undefined") return false;
     const seen = sessionStorage.getItem(INTRO_KEY) === "1";
+    
+    if (!seen && !isHome) {
+      sessionStorage.setItem(INTRO_KEY, "1");
+      return false;
+    }
+
     return !seen && isHome;
   });
 
   const [routeLoading, setRouteLoading] = useState(false);
-  const isFirstMount = useRef(true);
+  const prevPathname = useRef(location.pathname);
 
-  // Synchronize state cleanly whenever the user changes routes
+  // Synchronize starting state values on route change
   useEffect(() => {
     if (showIntro) return;
 
     if (isHome) {
-      // 🔑 Left-side text is visible, right-side cards stay HIDDEN until user scrolls
+      // 🔑 Home Start State:
+      // - introVisible: true (Only the logo and "By Naval Architects" show initially)
+      // - textVisible: false, routeVisible: false (Everything else hidden until scroll)
       setArrivalState({
         loaderDone: true,
         phase: "ready",
-        introVisible: false,
-        textVisible: true,
-        ctaVisible: true,
+        introVisible: true,  // 👈 brand logo intro starts as visible
+        textVisible: false,  // 👈 main text stays hidden
+        ctaVisible: false,
         navVisible: false,
-        routeVisible: false, // Right-side cards only reveal on scroll
+        routeVisible: false, // 👈 right side cards stay hidden
         heroComplete: false,
       });
     } else {
-      // Non-home pages (SHIPFLOW, CAESES, etc.)
+      // Sub-pages (SHIPFLOW, CAESES, etc.)
+      sessionStorage.setItem(INTRO_KEY, "1");
       setArrivalState({
         loaderDone: true,
         phase: "ready",
@@ -83,22 +88,34 @@ export default function RootLayout() {
     }
   }, [location.pathname, isHome, showIntro]);
 
-  // Page transition loader between route changes
+  // Handle route transition loader cleanly
   useEffect(() => {
     if (showIntro) return;
 
-    // Skip loader on first mount
-    if (isFirstMount.current) {
-      isFirstMount.current = false;
-      return;
+    const from = prevPathname.current;
+    const to = location.pathname;
+
+    const isDeepTransition =
+      (from === "/shipflow" || from === "/caeses" || to === "/shipflow" || to === "/caeses") &&
+      (from !== to);
+
+    if (isDeepTransition) {
+      setRouteLoading(true);
+      const timer = setTimeout(() => {
+        setRouteLoading(false);
+      }, 400);
+
+      prevPathname.current = to;
+
+      return () => {
+        clearTimeout(timer);
+        setRouteLoading(false);
+      };
+    } else {
+      setRouteLoading(false);
     }
 
-    setRouteLoading(true);
-    const timer = setTimeout(() => {
-      setRouteLoading(false);
-    }, 400);
-
-    return () => clearTimeout(timer);
+    prevPathname.current = to;
   }, [location.pathname, showIntro]);
 
   const handleIntroComplete = () => {
@@ -107,9 +124,9 @@ export default function RootLayout() {
     setArrivalState({
       loaderDone: true,
       phase: "ready",
-      introVisible: false,
-      textVisible: true,
-      ctaVisible: true,
+      introVisible: true,  // Show brand intro logo first
+      textVisible: false,
+      ctaVisible: false,
       navVisible: false,
       routeVisible: false,
       heroComplete: false,
@@ -121,12 +138,12 @@ export default function RootLayout() {
 
   return (
     <>
-      <ScrollToTop behavior="smooth" />
+      <ScrollToTop />
 
-      {/* Intro loader only on first-ever site visit */}
+      {/* Main Loader — ONLY for initial website arrival */}
       {showIntro && <ShipflowLoader onComplete={handleIntroComplete} />}
 
-      {/* Transition loader between page navigations */}
+      {/* Simple Loader — ONLY for transitions between deep sub-pages */}
       {!showIntro && routeLoading && <SimpleLoader />}
 
       <div

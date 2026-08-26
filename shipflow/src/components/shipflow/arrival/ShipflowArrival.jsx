@@ -2,7 +2,6 @@ import { useEffect } from "react";
 
 import SceneCanvas from "../../../scene/SceneCanvas";
 import ArrivalRuntime, { HERO_SCROLL_DISTANCE } from "./ArrivalRuntime";
-import ShipflowLoader from "./ShipflowLoader";
 import ShipflowCinematicUI from "./ShipflowCinematicUI";
 import { resetArrivalState, useArrivalState } from "./arrivalStore";
 
@@ -14,6 +13,7 @@ export default function ShipflowArrival() {
       history.scrollRestoration = "manual";
     }
 
+    // 🔑 Resets to the initial stage (Shows ONLY brand intro logo, hides headline & cards until scroll)
     resetArrivalState();
     window.scrollTo(0, 0);
   }, []);
@@ -25,6 +25,7 @@ export default function ShipflowArrival() {
     >
       <ArrivalRuntime />
 
+      {/* 3D WebGL Canvas Layer */}
       <div
         className="fixed inset-0 z-10 transition-opacity duration-700"
         style={{
@@ -35,9 +36,8 @@ export default function ShipflowArrival() {
         <SceneCanvas />
       </div>
 
+      {/* Cinematic Overlays (Brand intro logo -> scroll -> left headline + right cards) */}
       <ShipflowCinematicUI />
-
-      <ShipflowLoader />
 
       <div
         className="pointer-events-none relative z-20"

@@ -9,7 +9,11 @@ import {
 import { ArrowRight, ArrowDown } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import { useArrivalState, resetTransientOverlay, prepareHeroState } from "./arrivalStore";
+import {
+  useArrivalState,
+  resetTransientOverlay,
+  prepareHeroState,
+} from "./arrivalStore";
 import ShipflowMarineNav from "../../navbar/ShipflowMarineNav";
 
 import logo from "../../../assets/images/logo/logo1.webp";
@@ -20,7 +24,7 @@ import caeseslogo from "../../../assets/images/logo/caeses.webp";
 const ease = [0.22, 1, 0.36, 1];
 
 /* ============================================================
-   1. BRAND INTRO
+   1. BRAND INTRO (Visible initially at top of page)
 ============================================================ */
 function BrandIntro({ visible }) {
   return (
@@ -31,12 +35,13 @@ function BrandIntro({ visible }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.9, ease }}
+          transition={{ duration: 0.8, ease }}
           className="pointer-events-none absolute inset-0 z-[80] overflow-hidden"
         >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_48%,rgba(5,20,38,0.88)_0%,rgba(4,14,28,0.72)_32%,rgba(2,7,15,0.48)_64%,rgba(1,4,10,0.2)_100%)]" />
+          {/* Subtle radial wash so 3D background stays visible behind */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_48%,rgba(5,20,38,0.85)_0%,rgba(4,14,28,0.65)_35%,rgba(2,7,15,0.3)_70%,transparent_100%)]" />
 
-          <div className="absolute inset-0 opacity-[0.06] [background-image:linear-gradient(rgba(111,195,223,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(111,195,223,0.15)_1px,transparent_1px)] [background-size:76px_76px]" />
+          <div className="absolute inset-0 opacity-[0.05] [background-image:linear-gradient(rgba(111,195,223,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(111,195,223,0.15)_1px,transparent_1px)] [background-size:76px_76px]" />
 
           <motion.div
             initial={{ y: "-20%", opacity: 0 }}
@@ -109,7 +114,8 @@ function FloatingProduct({
     <motion.div
       initial={{ opacity: 0, x: isLeft ? -40 : 40, y: 20 }}
       animate={{ opacity: 1, x: 0, y: 0 }}
-      transition={{ duration: 0.9, delay, ease: [0.16, 1, 0.3, 1] }}
+      exit={{ opacity: 0, x: isLeft ? -20 : 20 }}
+      transition={{ duration: 0.8, delay, ease }}
       className="w-full max-w-sm"
     >
       <motion.div
@@ -176,7 +182,8 @@ function MobileCard({ name, subtitle, to, delay, logo }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }}
+      exit={{ opacity: 0, y: 10 }}
+      transition={{ duration: 0.6, delay, ease }}
       whileTap={{ scale: 0.96 }}
       className="w-full"
     >
@@ -207,7 +214,7 @@ function MobileCard({ name, subtitle, to, delay, logo }) {
 }
 
 /* ============================================================
-   4. PRODUCT SHOWCASE — SHIPFLOW + CAESES
+   4. PRODUCT SHOWCASE — SHIPFLOW + CAESES (Reveals on scroll)
 ============================================================ */
 function ProductShowcase({ visible }) {
   return (
@@ -217,7 +224,7 @@ function ProductShowcase({ visible }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.8, ease }}
+          transition={{ duration: 0.7, ease }}
           className="pointer-events-none absolute inset-0"
         >
           {/* DESKTOP */}
@@ -228,7 +235,7 @@ function ProductShowcase({ visible }) {
               description="Advanced marine CFD for resistance, propulsion, and seakeeping."
               to="/shipflow"
               side="right"
-              delay={0.2}
+              delay={0.1}
               logo={shipflowlogo}
             />
             <FloatingProduct
@@ -237,7 +244,7 @@ function ProductShowcase({ visible }) {
               description="Parametric design and automated system optimizations."
               to="/caeses"
               side="right"
-              delay={0.35}
+              delay={0.2}
               logo={caeseslogo}
             />
           </div>
@@ -247,7 +254,8 @@ function ProductShowcase({ visible }) {
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, ease }}
               className="pointer-events-auto rounded-2xl border border-[#6FC3DF]/20 bg-[#030E1C]/80 p-4 backdrop-blur-xl"
             >
               <Link to="/shipflow" className="flex items-center gap-3">
@@ -270,7 +278,8 @@ function ProductShowcase({ visible }) {
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1, ease }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.5, delay: 0.1, ease }}
               className="pointer-events-auto rounded-2xl border border-[#6FC3DF]/20 bg-[#030E1C]/80 p-4 backdrop-blur-xl"
             >
               <Link to="/caeses" className="flex items-center gap-3">
@@ -298,14 +307,14 @@ function ProductShowcase({ visible }) {
                 name="SHIPFLOW"
                 subtitle="Hydrodynamics"
                 to="/shipflow"
-                delay={0.2}
+                delay={0.1}
                 logo={shipflowlogo}
               />
               <MobileCard
                 name="CAESES"
                 subtitle="Optimization"
                 to="/caeses"
-                delay={0.3}
+                delay={0.18}
                 logo={caeseslogo}
               />
             </div>
@@ -338,7 +347,6 @@ export default function ShipflowCinematicUI() {
   const logoY = useTransform(smoothY, [-600, 600], [-10, 10]);
 
   useEffect(() => {
-    // 🔑 Safely set values to standard hero landing values (Left only visible, right hidden)
     prepareHeroState();
 
     return () => {
@@ -369,13 +377,13 @@ export default function ShipflowCinematicUI() {
             transition={{ duration: 0.65, ease }}
             className="pointer-events-none fixed inset-0 z-40 overflow-hidden text-white"
           >
-            {/* Left wash */}
-            <div className="absolute inset-y-0 left-0 w-[42vw] bg-gradient-to-r from-[#010610]/70 via-[#030E1C]/30 to-transparent md:w-[48vw]" />
+            {/* Subtle left gradient overlay that keeps 3D scene fully visible */}
+            <div className="absolute inset-y-0 left-0 w-[42vw] bg-gradient-to-r from-[#010610]/60 via-[#030E1C]/20 to-transparent md:w-[48vw] pointer-events-none" />
 
             {/* Parallax watermark */}
             <motion.div
               style={{ x: logoX, y: logoY }}
-              className="pointer-events-none absolute left-1/2 top-[48%] z-[3] -translate-x-1/2 -translate-y-1/2 select-none opacity-[0.08] sm:opacity-[0.12]"
+              className="pointer-events-none absolute left-1/2 top-[48%] z-[3] -translate-x-1/2 -translate-y-1/2 select-none opacity-[0.06] sm:opacity-[0.09]"
             >
               <img
                 src={sandeblogo}
@@ -384,10 +392,13 @@ export default function ShipflowCinematicUI() {
               />
             </motion.div>
 
+            {/* 1. Logo Intro screen (Visible initially at Y=0) */}
             <BrandIntro visible={introVisible} />
+
+            {/* 2. Right-side cards (Reveals upon scroll) */}
             <ProductShowcase visible={routeVisible} />
 
-            {/* LEFT — SandebTech Marine hero copy */}
+            {/* 3. LEFT headline copy (Reveals upon scroll) */}
             <main
               className="
                 absolute left-4 right-4
@@ -399,108 +410,112 @@ export default function ShipflowCinematicUI() {
                 xl:left-20
               "
             >
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={textVisible ? { opacity: 1 } : { opacity: 0 }}
-                transition={{ duration: 0.8, ease }}
-              >
-                {/* Accent line */}
-                <motion.div
-                  initial={{ scaleX: 0 }}
-                  animate={textVisible ? { scaleX: 1 } : { scaleX: 0 }}
-                  transition={{ duration: 1.1, ease }}
-                  className="mb-4 h-px w-20 origin-left bg-gradient-to-r from-[#38BDF8] to-transparent sm:mb-5 sm:w-28 md:w-32"
-                />
+              <AnimatePresence>
+                {textVisible && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ duration: 0.7, ease }}
+                  >
+                    {/* Accent line */}
+                    <motion.div
+                      initial={{ scaleX: 0 }}
+                      animate={{ scaleX: 1 }}
+                      transition={{ duration: 1.1, ease }}
+                      className="mb-4 h-px w-20 origin-left bg-gradient-to-r from-[#38BDF8] to-transparent sm:mb-5 sm:w-28 md:w-32"
+                    />
 
-                {/* Eyebrow */}
-                <div className="mb-3 text-[9px] uppercase tracking-[0.3em] text-[#6FC3DF] sm:mb-4 sm:text-[10px] sm:tracking-[0.36em] md:text-[11px] md:tracking-[0.4em]">
-                  SandebTech Marine
-                </div>
+                    {/* Eyebrow */}
+                    <div className="mb-3 text-[9px] uppercase tracking-[0.3em] text-[#6FC3DF] sm:mb-4 sm:text-[10px] sm:tracking-[0.36em] md:text-[11px] md:tracking-[0.4em]">
+                      SandebTech Marine
+                    </div>
 
-                {/* Headline */}
-                <h1
-                  className="
-                    font-semibold text-white
-                    text-[clamp(2.4rem,10vw,3.8rem)]
-                    sm:text-[clamp(2.8rem,11vw,4.6rem)]
-                    md:text-[clamp(3.2rem,7vw,5.5rem)]
-                    lg:text-[clamp(3.6rem,6vw,6.2rem)]
-                    leading-[1.02] sm:leading-[1] md:leading-[0.95]
-                    tracking-[-0.03em] sm:tracking-[-0.04em] md:tracking-[-0.05em]
-                    drop-shadow-[0_20px_70px_rgba(0,0,0,0.74)]
-                  "
-                >
-                  {["Engineering", "Fluid", "Intelligence"].map((word, index) => (
-                    <motion.span
-                      key={word}
-                      className={`
-                        relative block
-                        ${index > 0 ? "mt-1 sm:mt-1.5 md:mt-2" : ""}
-                        ${
-                          word === "Intelligence"
-                            ? "bg-gradient-to-r from-white via-[#BAE6FD] to-[#38BDF8] bg-clip-text pb-1 text-transparent"
-                            : ""
-                        }
-                      `}
-                      initial={{ opacity: 0, y: 36, filter: "blur(10px)" }}
-                      animate={
-                        textVisible
-                          ? { opacity: 1, y: 0, filter: "blur(0px)" }
-                          : { opacity: 0, y: 36, filter: "blur(10px)" }
-                      }
-                      transition={{ duration: 1.05, delay: index * 0.14, ease }}
+                    {/* Headline */}
+                    <h1
+                      className="
+                        font-semibold text-white
+                        text-[clamp(2.4rem,10vw,3.8rem)]
+                        sm:text-[clamp(2.8rem,11vw,4.6rem)]
+                        md:text-[clamp(3.2rem,7vw,5.5rem)]
+                        lg:text-[clamp(3.6rem,6vw,6.2rem)]
+                        leading-[1.02] sm:leading-[1] md:leading-[0.95]
+                        tracking-[-0.03em] sm:tracking-[-0.04em] md:tracking-[-0.05em]
+                        drop-shadow-[0_20px_70px_rgba(0,0,0,0.74)]
+                      "
                     >
-                      {word}
-                      {word === "Intelligence" && (
+                      {["Engineering", "Fluid", "Intelligence"].map((word, index) => (
                         <motion.span
-                          initial={{ scaleX: 0 }}
-                          animate={textVisible ? { scaleX: 1 } : { scaleX: 0 }}
-                          transition={{ duration: 1, delay: 0.9, ease }}
-                          className="absolute -bottom-0.5 left-0 h-[3px] w-20 origin-left rounded-full bg-gradient-to-r from-[#38BDF8] to-transparent sm:w-28 md:h-1 md:w-36"
-                        />
-                      )}
-                    </motion.span>
-                  ))}
-                </h1>
+                          key={word}
+                          className={`
+                            relative block
+                            ${index > 0 ? "mt-1 sm:mt-1.5 md:mt-2" : ""}
+                            ${
+                              word === "Intelligence"
+                                ? "bg-gradient-to-r from-white via-[#BAE6FD] to-[#38BDF8] bg-clip-text pb-1 text-transparent"
+                                : ""
+                            }
+                          `}
+                          initial={{ opacity: 0, y: 30, filter: "blur(8px)" }}
+                          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                          transition={{ duration: 0.9, delay: index * 0.12, ease }}
+                        >
+                          {word}
+                          {word === "Intelligence" && (
+                            <motion.span
+                              initial={{ scaleX: 0 }}
+                              animate={{ scaleX: 1 }}
+                              transition={{ duration: 0.9, delay: 0.7, ease }}
+                              className="absolute -bottom-0.5 left-0 h-[3px] w-20 origin-left rounded-full bg-gradient-to-r from-[#38BDF8] to-transparent sm:w-28 md:h-1 md:w-36"
+                            />
+                          )}
+                        </motion.span>
+                      ))}
+                    </h1>
 
-                {/* Paragraph */}
-                <motion.p
-                  initial={{ opacity: 0, y: 18 }}
-                  animate={
-                    textVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 18 }
-                  }
-                  transition={{ duration: 1, delay: 0.42, ease }}
-                  className="mt-4 max-w-[20rem] text-xs font-light leading-relaxed text-[#93C5FD]/85 sm:mt-5 sm:max-w-[22rem] sm:text-sm md:mt-6 md:max-w-md md:text-base lg:text-lg"
-                >
-                  Ship hydrodynamics, resistance prediction and marine simulation
-                  for modern vessel performance. Powered by{" "}
-                  <span className="font-semibold text-cyan-200">SHIPFLOW</span> and{" "}
-                  <span className="font-semibold text-cyan-200">CAESES</span>.
-                </motion.p>
-              </motion.div>
+                    {/* Paragraph */}
+                    <motion.p
+                      initial={{ opacity: 0, y: 14 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.8, delay: 0.35, ease }}
+                      className="mt-4 max-w-[20rem] text-xs font-light leading-relaxed text-[#93C5FD]/85 sm:mt-5 sm:max-w-[22rem] sm:text-sm md:mt-6 md:max-w-md md:text-base lg:text-lg"
+                    >
+                      Ship hydrodynamics, resistance prediction and marine simulation
+                      for modern vessel performance. Powered by{" "}
+                      <span className="font-semibold text-cyan-200">SHIPFLOW</span> and{" "}
+                      <span className="font-semibold text-cyan-200">CAESES</span>.
+                    </motion.p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Scroll hint only */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={ctaVisible ? { opacity: 1 } : { opacity: 0 }}
-                transition={{ delay: 0.6, duration: 0.6 }}
-                className="mt-8 hidden items-center gap-2 md:flex"
-              >
-                <span className="text-[8px] font-semibold uppercase tracking-[0.3em] text-slate-500">
-                  Scroll Down
-                </span>
-                <motion.div
-                  animate={{ y: [0, 6, 0] }}
-                  transition={{
-                    duration: 1.8,
-                    repeat: Infinity,
-                    ease: "easeInOut",
-                  }}
-                  className="text-cyan-400/80"
-                >
-                  <ArrowDown size={12} strokeWidth={2.5} />
-                </motion.div>
-              </motion.div>
+              <AnimatePresence>
+                {ctaVisible && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ delay: 0.4, duration: 0.5 }}
+                    className="mt-8 hidden items-center gap-2 md:flex"
+                  >
+                    <span className="text-[8px] font-semibold uppercase tracking-[0.3em] text-slate-500">
+                      Scroll Down
+                    </span>
+                    <motion.div
+                      animate={{ y: [0, 6, 0] }}
+                      transition={{
+                        duration: 1.8,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                      className="text-cyan-400/80"
+                    >
+                      <ArrowDown size={12} strokeWidth={2.5} />
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </main>
           </motion.div>
         )}

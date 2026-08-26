@@ -1,3 +1,4 @@
+import EngineeringContactCTA from "../components/contact/EngineeringContactCTA";
 import ShipflowHero from "../components/shipflow/shipflowPageSection/hero/ShipflowHero";
 import PublicationSection from "../components/shipflow/shipflowPageSection/PublicationSection/PublicationSection";
 import ShipflowServicesSection from "../components/shipflow/shipflowPageSection/service/ShipflowServicesSection";
@@ -9,6 +10,7 @@ export default function Shipflow() {
      <SimulationSection/>
      <ShipflowServicesSection/>
      <PublicationSection/>
+     <EngineeringContactCTA/>
     </main>
   );
 }
