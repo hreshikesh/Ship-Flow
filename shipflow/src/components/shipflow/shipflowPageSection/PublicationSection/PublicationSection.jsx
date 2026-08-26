@@ -1,7 +1,6 @@
 // PublicationSection.jsx
 import SectionHeader from "./SectionHeader";
 import Bookshelf from "./Bookshelf";
-import BrowseButton from "./BrowseButton";
 
 export default function PublicationSection() {
   return (
@@ -24,7 +23,7 @@ export default function PublicationSection() {
       <div className="container relative z-10 mx-auto px-4 sm:px-6">
         <SectionHeader />
         <Bookshelf />
-        <BrowseButton />
+ 
       </div>
     </section>
   );

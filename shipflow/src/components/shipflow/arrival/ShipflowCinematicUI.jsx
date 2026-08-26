@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import {
   motion,
   AnimatePresence,
@@ -8,7 +9,7 @@ import {
 import { ArrowRight, ArrowDown } from "lucide-react";
 import { Link } from "react-router-dom";
 
-import { useArrivalState } from "./arrivalStore";
+import { useArrivalState, resetTransientOverlay, prepareHeroState } from "./arrivalStore";
 import ShipflowMarineNav from "../../navbar/ShipflowMarineNav";
 
 import logo from "../../../assets/images/logo/logo1.webp";
@@ -336,6 +337,15 @@ export default function ShipflowCinematicUI() {
   const logoX = useTransform(smoothX, [-600, 600], [-15, 15]);
   const logoY = useTransform(smoothY, [-600, 600], [-10, 10]);
 
+  useEffect(() => {
+    // 🔑 Safely set values to standard hero landing values (Left only visible, right hidden)
+    prepareHeroState();
+
+    return () => {
+      resetTransientOverlay();
+    };
+  }, []);
+
   const handleMouseMove = (event) => {
     const rect = event.currentTarget.getBoundingClientRect();
     mouseX.set(event.clientX - (rect.left + rect.width / 2));
@@ -453,7 +463,7 @@ export default function ShipflowCinematicUI() {
                   ))}
                 </h1>
 
-                {/* Paragraph — SandebTech + SHIPFLOW + CAESES */}
+                {/* Paragraph */}
                 <motion.p
                   initial={{ opacity: 0, y: 18 }}
                   animate={

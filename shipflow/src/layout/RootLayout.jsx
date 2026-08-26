@@ -6,7 +6,7 @@ import ShipflowLoader from "../components/shipflow/arrival/ShipflowLoader.jsx";
 import SimpleLoader from "../components/shipflow/arrival/SimpleLoader.jsx";
 import { useArrivalState, setArrivalState } from "../components/shipflow/arrival/arrivalStore";
 import WhatsAppButton from "../components/whatsappbutton/WhatsAppButton.jsx";
-
+import ScrollToTop from "../components/ScrollToTop/ScrollToTop.jsx";
 const INTRO_KEY = "sandeb-marine-intro-seen";
 
 export default function RootLayout() {
@@ -58,6 +58,7 @@ export default function RootLayout() {
 
   return (
     <>
+        <ScrollToTop behavior="smooth" />
       {showIntro && <ShipflowLoader onComplete={handleIntroComplete} />}
 
       {!showIntro && routeLoading && <SimpleLoader />}

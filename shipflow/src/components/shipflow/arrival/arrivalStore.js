@@ -1,10 +1,14 @@
-import { useEffect, useState } from "react";
+// arrivalStore.js
+import { useState, useEffect } from "react";
+
+const INTRO_KEY = "sandeb-marine-intro-seen";
+const hasSeenIntro = typeof window !== "undefined" && sessionStorage.getItem(INTRO_KEY) === "1";
 
 const initialState = {
   elapsed: 0,
-  phase: "loader",
+  phase: hasSeenIntro ? "ready" : "loader",
 
-  loaderDone: false,
+  loaderDone: hasSeenIntro,
   introVisible: false,
 
   scroll: 0,
@@ -13,13 +17,14 @@ const initialState = {
   pageProgress: 0,
 
   heroComplete: false,
-  aboutUnlocked: false,   // 🔑 stays true once hero was completed
+  aboutUnlocked: hasSeenIntro,
 
-  textVisible: false,
-  ctaVisible: false,
-  mouseEnabled: false,
-  navVisible: false,
-  routeVisible: false,
+  // 🔑 Default setup represents the start of the page (scroll = 0)
+  textVisible: hasSeenIntro,    // Left side visible immediately
+  ctaVisible: hasSeenIntro,     // Scroll hint visible immediately
+  mouseEnabled: hasSeenIntro,
+  navVisible: hasSeenIntro,
+  routeVisible: false,          // Right side hidden (only reveals on scroll)
 
   sonarMode: false,
 };
@@ -49,8 +54,44 @@ export function setArrivalFrameState(patch) {
 }
 
 export function resetArrivalState() {
+  const wasLoaderDone = state.loaderDone;
+  const wasAboutUnlocked = state.aboutUnlocked;
+
   Object.assign(state, initialState);
+
+  if (wasLoaderDone) {
+    state.loaderDone = true;
+    state.phase = "ready";
+    state.textVisible = true;
+    state.routeVisible = false; // Hidden initially at top
+    state.ctaVisible = true;
+    state.navVisible = true;
+  }
+  if (wasAboutUnlocked) {
+    state.aboutUnlocked = true;
+  }
+
   listeners.forEach((listener) => listener({ ...state }));
+}
+
+// Clears overlays safely on unmount
+export function resetTransientOverlay() {
+  setArrivalState({
+    introVisible: false,
+    textVisible: false,
+    routeVisible: false,
+    ctaVisible: false,
+  });
+}
+
+// 🔑 Initializes the exact top-of-page stage (scroll = 0) before fade-in
+export function prepareHeroState() {
+  setArrivalState({
+    heroComplete: false,
+    textVisible: true,     // Left copy visible
+    routeVisible: false,   // Right product cards hidden
+    ctaVisible: true,      // Scroll down hint visible
+  });
 }
 
 export function subscribeArrival(listener) {
