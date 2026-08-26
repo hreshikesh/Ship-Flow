@@ -9,10 +9,40 @@ import {
   setArrivalState,
 } from "../components/shipflow/arrival/arrivalStore";
 import WhatsAppButton from "../components/whatsappbutton/WhatsAppButton.jsx";
-import ScrollToTop from "../components/ScrollToTop/ScrollToTop.jsx";
 
 const INTRO_KEY = "sandeb-marine-intro-seen";
 
+/* ============================================================
+   SCROLL TO TOP HELPER COMPONENT
+============================================================ */
+function ScrollToTop({ behavior = "smooth" }) {
+  const { pathname, hash } = useLocation();
+
+  useEffect(() => {
+    // If URL has an anchor hash (#section), let the browser scroll to that element
+    if (hash) {
+      const id = hash.replace("#", "");
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior });
+        return;
+      }
+    }
+
+    // Scroll to top of page on route change
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior,
+    });
+  }, [pathname, hash, behavior]);
+
+  return null;
+}
+
+/* ============================================================
+   MAIN ROOT LAYOUT
+============================================================ */
 export default function RootLayout() {
   const location = useLocation();
   const isHome = location.pathname === "/" || location.pathname === "/home";
@@ -32,10 +62,7 @@ export default function RootLayout() {
     if (showIntro) return;
 
     if (isHome) {
-      // 🔑 When arriving at Home from any route:
-      // - textVisible: true (Left side text shows immediately)
-      // - routeVisible: false (Right side cards stay HIDDEN until you scroll!)
-      // - heroComplete: false (Hero stage is active)
+      // 🔑 Left-side text is visible, right-side cards stay HIDDEN until user scrolls
       setArrivalState({
         loaderDone: true,
         phase: "ready",
@@ -43,7 +70,7 @@ export default function RootLayout() {
         textVisible: true,
         ctaVisible: true,
         navVisible: false,
-        routeVisible: false, // 👈 Ensures right-side items only appear on scroll
+        routeVisible: false, // Right-side cards only reveal on scroll
         heroComplete: false,
       });
     } else {
@@ -56,7 +83,7 @@ export default function RootLayout() {
     }
   }, [location.pathname, isHome, showIntro]);
 
-  // Crisp page transitions between routes without loader flashing on initial load
+  // Page transition loader between route changes
   useEffect(() => {
     if (showIntro) return;
 
