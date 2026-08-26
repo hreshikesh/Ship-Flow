@@ -1,22 +1,19 @@
-// routes/router.jsx
 import { createBrowserRouter } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import RootLayout from "../layout/RootLayout";
 import ErrorOverlay from "../ErrorOverlay.jsx";
-import ShipflowLoader from "../components/shipflow/arrival/ShipflowLoader.jsx";
 
-// ✅ Lazy-loaded pages — each becomes a separate JS chunk
 const Home = lazy(() => import("../pages/Home.jsx"));
-// // const Products = lazy(() => import("../pages/Products.jsx"));
-// const Services = lazy(() => import("../pages/Services.jsx"));
-// const Resources = lazy(() => import("../pages/Resources.jsx"));
-// const Support = lazy(() => import("../pages/Support.jsx"));
-// const Company = lazy(() => import("../pages/Company.jsx"));
-// const NotFound = lazy(() => import("../pages/NotFound.jsx"));
+const Shipflow = lazy(() => import("../pages/Shipflow.jsx"));
+// const Caeses = lazy(() => import("../pages/Caeses.jsx"));
+// const NotFound = lazy(() => import("../pages/Marine404.jsx"));
 
-// ✅ Wrapper for suspense fallback
+const PageFallback = () => (
+  <div className="fixed inset-0 z-[100] bg-[#02070d]" />
+);
+
 const withSuspense = (Component) => (
-  <Suspense fallback={<ShipflowLoader/>}>
+  <Suspense fallback={<PageFallback />}>
     <Component />
   </Suspense>
 );
@@ -25,40 +22,13 @@ export const router = createBrowserRouter([
   {
     path: "/",
     element: <RootLayout />,
-    errorElement: <ErrorOverlay/>,
+    errorElement: <ErrorOverlay />,
     children: [
-      {
-        index: true,
-        element: withSuspense(Home),
-      },
-      {
-        path: "home",
-        element: withSuspense(Home),
-      },
-      // {
-      //   path: "products",
-      //   element: withSuspense(Products),
-      // },
-      // {
-      //   path: "services",
-      //   element: withSuspense(Services),
-      // },
-      // {
-      //   path: "resources",
-      //   element: withSuspense(Resources),
-      // },
-      // {
-      //   path: "support",
-      //   element: withSuspense(Support),
-      // },
-      // {
-      //   path: "company",
-      //   element: withSuspense(Company),
-      // },
-      // {
-      //   path: "*",
-      //   element: withSuspense(NotFound),
-      // },
+      { index: true, element: withSuspense(Home) },
+      { path: "home", element: withSuspense(Home) },
+      { path: "shipflow", element: withSuspense(Shipflow) },
+      // { path: "caeses", element: withSuspense(Caeses) },
+      // { path: "*", element: withSuspense(NotFound) },
     ],
   },
 ]);

@@ -1,239 +1,503 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useArrivalState, setArrivalState } from "./arrivalStore";
+import logo from "../../../assets/images/logo/logo2.webp";
 
 const SYSTEMS = [
-  { id: "core", label: "Core Kernel", verb: "Linking" },
-  { id: "hydro", label: "Hydrodynamic Mesh", verb: "Calibrating" },
-  { id: "telemetry", label: "AIS Telemetry Feed", verb: "Syncing" },
-  { id: "radar", label: "Bathymetric Radar", verb: "Mapping" },
-  { id: "cfd", label: "CFD Solver Engine", verb: "Warming Up" },
-  { id: "geometry", label: "Hull Geometry Loader", verb: "Parsing" },
-  { id: "ui", label: "Command Interface", verb: "Initializing" },
+  {
+    id: "core",
+    label: "SandebTech Core",
+    verb: "Connecting",
+  },
+  {
+    id: "marine",
+    label: "Marine Engineering Engine",
+    verb: "Initializing",
+  },
+  {
+    id: "hydro",
+    label: "Hydrodynamic Analysis",
+    verb: "Calibrating",
+  },
+  {
+    id: "cfd",
+    label: "CFD Simulation Engine",
+    verb: "Warming Up",
+  },
+  {
+    id: "hull",
+    label: "Hull Geometry System",
+    verb: "Parsing",
+  },
+  {
+    id: "flow",
+    label: "Flow Analysis Network",
+    verb: "Synchronizing",
+  },
+  {
+    id: "caeses",
+    label: "CAESES Optimization",
+    verb: "Loading",
+  },
+  {
+    id: "interface",
+    label: "Command Interface",
+    verb: "Initializing",
+  },
+
 ];
 
 const TOTAL_DURATION = 10000;
-const EXIT_DELAY = 400;
+const EXIT_DURATION = 900;
+const EXIT_DELAY = 300;
 
-export default function ShipflowLoader() {
+export default function ShipflowLoader({ onComplete }) {
   const { loaderDone } = useArrivalState();
-  const [forceHidden, setForceHidden] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [visible, setVisible] = useState(true);
   const canvasRef = useRef(null);
 
+  /*
+   * -----------------------------------------
+   * PROGRESS
+   * -----------------------------------------
+   */
   useEffect(() => {
-    const startTime = performance.now();
-    let rafId;
+    const start = performance.now();
+    let animationFrame;
 
-    const updateProgress = (currentTime) => {
-      const elapsed = currentTime - startTime;
-      const pct = Math.min(100, (elapsed / TOTAL_DURATION) * 100);
-      setProgress(Math.floor(pct));
+    const update = (time) => {
+      const elapsed = time - start;
+      const percentage = Math.min(100, (elapsed / TOTAL_DURATION) * 100);
+      setProgress(Math.floor(percentage));
 
-      if (pct < 100) {
-        rafId = requestAnimationFrame(updateProgress);
+      if (percentage < 100) {
+        animationFrame = requestAnimationFrame(update);
       }
     };
 
-    rafId = requestAnimationFrame(updateProgress);
-    return () => cancelAnimationFrame(rafId);
+    animationFrame = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(animationFrame);
   }, []);
 
-  useEffect(() => {
+  /*
+   * -----------------------------------------
+   * EXIT
+   * -----------------------------------------
+   */
+   useEffect(() => {
+    if (progress < 100) return;
+
     const timer = setTimeout(() => {
-      setForceHidden(true);
-      setArrivalState({
-        loaderDone: true,
-        phase: "brand",
-      });
-    }, TOTAL_DURATION + EXIT_DELAY);
+      setVisible(false);
+
+      setTimeout(() => {
+        setArrivalState({
+          loaderDone: true,
+          phase: "brand",
+        });
+        onComplete?.(); // ← THIS was missing
+      }, EXIT_DURATION);
+    }, EXIT_DELAY);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [progress, onComplete]);
 
+  /*
+   * -----------------------------------------
+   * FLOW PARTICLES
+   * -----------------------------------------
+   */
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let raf = 0;
+    let animationFrame;
     let width = 0;
     let height = 0;
+    const particles = [];
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     const resize = () => {
-      width = canvas.clientWidth;
-      height = canvas.clientHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      width = window.innerWidth;
+      height = window.innerHeight;
+
       canvas.width = width * dpr;
       canvas.height = height * dpr;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
+
     resize();
     window.addEventListener("resize", resize);
 
-    const COUNT = 60;
-    const particles = [];
+    const COUNT = Math.min(90, Math.max(45, Math.floor(width / 15)));
+
     for (let i = 0; i < COUNT; i++) {
       particles.push({
         x: Math.random() * width,
-        y: height * (0.15 + Math.random() * 0.7),
-        speed: 0.4 + Math.random() * 0.9,
-        length: 15 + Math.random() * 20,
-        opacity: 0.15 + Math.random() * 0.3,
+        y: Math.random() * height,
+        speed: 0.25 + Math.random() * 0.9,
+        length: 8 + Math.random() * 30,
+        opacity: 0.08 + Math.random() * 0.25,
+        thickness: 0.5 + Math.random(),
       });
     }
 
     const draw = () => {
-      ctx.fillStyle = "rgba(4, 7, 13, 0.2)";
+      ctx.fillStyle = "rgba(2, 7, 13, 0.20)";
       ctx.fillRect(0, 0, width, height);
 
-      for (const p of particles) {
-        p.x += p.speed;
-        if (p.x > width + 30) p.x = -30;
+      particles.forEach((particle) => {
+        particle.x += particle.speed;
 
-        ctx.strokeStyle = `rgba(127, 216, 229, ${p.opacity})`;
-        ctx.lineWidth = 1;
+        if (particle.x > width + 50) {
+          particle.x = -50;
+          particle.y = Math.random() * height;
+        }
+
         ctx.beginPath();
-        ctx.moveTo(p.x - p.length, p.y);
-        ctx.lineTo(p.x, p.y);
+        ctx.strokeStyle = `rgba(127, 216, 229, ${particle.opacity})`;
+        ctx.lineWidth = particle.thickness;
+        ctx.moveTo(particle.x - particle.length, particle.y);
+        ctx.lineTo(particle.x, particle.y);
         ctx.stroke();
-      }
+      });
 
-      raf = requestAnimationFrame(draw);
+      animationFrame = requestAnimationFrame(draw);
     };
-    raf = requestAnimationFrame(draw);
+
+    animationFrame = requestAnimationFrame(draw);
 
     return () => {
-      cancelAnimationFrame(raf);
+      cancelAnimationFrame(animationFrame);
       window.removeEventListener("resize", resize);
     };
   }, []);
 
-  const visible = !loaderDone && !forceHidden;
+  /*
+   * -----------------------------------------
+   * SYSTEM PROGRESS
+   * -----------------------------------------
+   */
   const segmentSize = 100 / SYSTEMS.length;
+  const isVisible = visible && !loaderDone;
 
   return (
     <AnimatePresence>
-      {visible && (
+      {isVisible && (
         <motion.div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-[#02070d] text-[#C9D6DF] overflow-hidden font-mono"
+          className="
+            fixed inset-0 z-[9999]
+            flex items-center justify-center
+            overflow-hidden
+            bg-[#02070d]
+            p-4 sm:p-6
+            text-white
+            font-mono
+          "
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          transition={{
+            duration: EXIT_DURATION / 1000,
+            ease: [0.22, 1, 0.36, 1],
+          }}
         >
+          {/* -------------------------------- */}
+          {/* BACKGROUND GRID */}
+          {/* -------------------------------- */}
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-[0.35]"
+            className="pointer-events-none absolute inset-0 opacity-[0.28]"
             style={{
-              backgroundImage:
-                "linear-gradient(rgba(127,216,229,0.05) 1px, transparent 1px)," +
-                "linear-gradient(90deg, rgba(127,216,229,0.05) 1px, transparent 1px)",
+              backgroundImage: `
+                linear-gradient(
+                  rgba(127,216,229,0.045) 1px,
+                  transparent 1px
+                ),
+                linear-gradient(
+                  90deg,
+                  rgba(127,216,229,0.045) 1px,
+                  transparent 1px
+                )
+              `,
               backgroundSize: "56px 56px",
             }}
           />
 
+          {/* -------------------------------- */}
+          {/* PARTICLE CANVAS */}
+          {/* -------------------------------- */}
           <canvas
             ref={canvasRef}
-            aria-hidden
+            aria-hidden="true"
             className="pointer-events-none absolute inset-0 h-full w-full"
           />
 
+          {/* -------------------------------- */}
+          {/* CENTER FLOW LINE */}
+          {/* -------------------------------- */}
           <div
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 z-10 h-px w-[72vw] max-w-[850px] -translate-x-1/2 -translate-y-1/2 bg-gradient-to-r from-transparent via-[#7fd8e5]/70 to-transparent shadow-[0_0_14px_rgba(127,216,229,0.5)]"
+            className="
+              pointer-events-none
+              absolute
+              left-1/2 top-1/2
+              z-10
+              h-px
+              w-[75vw]
+              max-w-[900px]
+              -translate-x-1/2
+              -translate-y-1/2
+              bg-gradient-to-r
+              from-transparent
+              via-cyan-300/60
+              to-transparent
+            "
+            style={{
+              boxShadow: "0 0 18px rgba(127,216,229,0.45)",
+            }}
           />
 
-          <div aria-hidden className="pointer-events-none absolute inset-4 sm:inset-6">
-            <div className="absolute left-0 top-0 h-6 w-6 sm:h-8 sm:w-8 border-l-2 border-t-2 border-[#7fd8e5]/40" />
-            <div className="absolute right-0 top-0 h-6 w-6 sm:h-8 sm:w-8 border-r-2 border-t-2 border-[#7fd8e5]/40" />
-            <div className="absolute left-0 bottom-0 h-6 w-6 sm:h-8 sm:w-8 border-l-2 border-b-2 border-[#7fd8e5]/40" />
-            <div className="absolute right-0 bottom-0 h-6 w-6 sm:h-8 sm:w-8 border-r-2 border-b-2 border-[#7fd8e5]/40" />
+          {/* -------------------------------- */}
+          {/* CORNER HUD */}
+          {/* -------------------------------- */}
+          <div aria-hidden className="pointer-events-none absolute inset-3 sm:inset-7">
+            <div className="absolute left-0 top-0 h-5 w-5 sm:h-7 sm:w-7 border-l border-t border-cyan-300/40" />
+            <div className="absolute right-0 top-0 h-5 w-5 sm:h-7 sm:w-7 border-r border-t border-cyan-300/40" />
+            <div className="absolute bottom-0 left-0 h-5 w-5 sm:h-7 sm:w-7 border-b border-l border-cyan-300/40" />
+            <div className="absolute bottom-0 right-0 h-5 w-5 sm:h-7 sm:w-7 border-b border-r border-cyan-300/40" />
           </div>
 
+          {/* -------------------------------- */}
+          {/* LOADER PANEL */}
+          {/* -------------------------------- */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="relative z-20 w-[min(560px,92vw)] p-5 sm:p-6 md:p-8 rounded-lg border border-[#7fd8e5]/20 bg-[#04070d]/85 backdrop-blur-md shadow-2xl"
+            initial={{ opacity: 0, y: 25, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{
+              duration: 0.8,
+              ease: [0.22, 1, 0.36, 1],
+            }}
+            className="
+              relative z-20
+              w-full max-w-[580px]
+              rounded-xl
+              border
+              border-cyan-300/15
+              bg-[#04070d]/90
+              p-4 sm:p-7
+              shadow-2xl
+              backdrop-blur-xl
+              my-auto
+            "
           >
-            <div className="mb-5 flex items-center justify-between sm:mb-6">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <span className="h-2 w-2 rounded-full bg-[#7fd8e5] shadow-[0_0_16px_rgba(127,216,229,0.95)] animate-pulse" />
-                <span className="text-[10px] font-bold tracking-[0.3em] text-white sm:text-xs sm:tracking-[0.4em]">
-                  SHIPFLOW <span className="text-[#7fd8e5] font-normal">/ ENGINE</span>
-                </span>
+            {/* -------------------------------- */}
+            {/* BRAND HEADER */}
+            {/* -------------------------------- */}
+            <div className="mb-5 sm:mb-7 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                {/* Logo integration */}
+                <div className="flex h-9 sm:h-10 items-center justify-center shrink-0">
+                  <img
+                    src={logo}
+                    alt="Shipflow Engine"
+                    className="
+                      h-7 sm:h-9
+                      w-auto
+                      object-contain
+                      filter
+                      drop-shadow-[0_0_8px_rgba(127,216,229,0.35)]
+                    "
+                  />
+                </div>
+
+                <div className="min-w-0">
+                  <div className="
+                    text-[9px] sm:text-xs
+                    font-bold
+                    tracking-[0.25em] sm:tracking-[0.35em]
+                    text-white
+                    truncate
+                  ">
+                    SANDEBTECH{" "}
+                    <span className="text-cyan-300 font-normal">
+                      / MARINE
+                    </span>
+                  </div>
+                </div>
               </div>
+
               <motion.span
-                animate={{ opacity: [0.4, 1, 0.4] }}
-                transition={{ repeat: Infinity, duration: 2 }}
-                className="text-[8px] tracking-[0.2em] text-[#C9D6DF]/50 sm:text-[10px] sm:tracking-[0.3em]"
+                animate={{ opacity: [0.35, 1, 0.35] }}
+                transition={{ duration: 2, repeat: Infinity }}
+                className="
+                  text-[7px] sm:text-[10px]
+                  tracking-[0.2em] sm:tracking-[0.25em]
+                  text-cyan-200/50
+                  shrink-0
+                "
               >
                 NORTH ATLANTIC
               </motion.span>
             </div>
 
-            <div className="mb-5 space-y-3 sm:mb-6">
-              <p className="text-[10px] uppercase tracking-[0.18em] text-[#7fd8e5] sm:text-xs sm:tracking-[0.2em]">
-                Initializing Maritime Intelligence...
+            {/* -------------------------------- */}
+            {/* TITLE */}
+            {/* -------------------------------- */}
+            <div className="mb-5 sm:mb-6">
+              <p className="
+                text-[9px] sm:text-xs
+                uppercase
+                tracking-[0.18em] sm:tracking-[0.2em]
+                text-cyan-300
+              ">
+                Initializing Maritime Intelligence
               </p>
-
-              <div className="space-y-2 border-l border-[#7fd8e5]/20 pl-3">
-                {SYSTEMS.map((sys, idx) => {
-                  const threshold = (idx + 1) * segmentSize;
-                  const isLoading = progress >= idx * segmentSize && progress < threshold;
-                  const isReady = progress >= threshold;
-
-                  return (
-                    <motion.div
-                      key={sys.id}
-                      initial={{ opacity: 0, x: -10 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: idx * 0.08 }}
-                      className="flex items-center justify-between text-[9px] tracking-[0.15em] sm:text-[11px] sm:tracking-[0.2em]"
-                    >
-                      <span className={isReady ? "text-[#C9D6DF]" : isLoading ? "text-[#C9D6DF]/80" : "text-[#C9D6DF]/30"}>
-                        {sys.label}
-                      </span>
-
-                      <div className="flex items-center gap-1.5 sm:gap-2">
-                        {isLoading && (
-                          <motion.span
-                            animate={{ opacity: [0.3, 1, 0.3] }}
-                            transition={{ repeat: Infinity, duration: 1 }}
-                            className="h-1 w-1 rounded-full bg-[#7fd8e5]"
-                          />
-                        )}
-                        <span className={isReady ? "text-[#7fd8e5]" : isLoading ? "text-[#7fd8e5]/70" : "text-white/25"}>
-                          {isReady ? "READY" : isLoading ? `${sys.verb}...` : sys.verb}
-                        </span>
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </div>
             </div>
 
-            <div className="space-y-2">
+            {/* -------------------------------- */}
+            {/* SYSTEM LIST */}
+            {/* -------------------------------- */}
+            <div className="
+              mb-5 sm:mb-7
+              space-y-2 sm:space-y-2.5
+              border-l
+              border-cyan-300/15
+              pl-2.5 sm:pl-3
+              max-h-[35vh] sm:max-h-none
+              overflow-y-auto
+            ">
+              {SYSTEMS.map((system, index) => {
+                const start = index * segmentSize;
+                const end = (index + 1) * segmentSize;
+                const loading = progress >= start && progress < end;
+                const ready = progress >= end;
+
+                return (
+                  <motion.div
+                    key={system.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.07 }}
+                    className="
+                      flex
+                      items-center
+                      justify-between
+                      gap-3 sm:gap-4
+                      text-[8px] sm:text-[10px]
+                      tracking-[0.12em] sm:tracking-[0.18em]
+                    "
+                  >
+                    <span
+                      className={
+                        ready
+                          ? "text-slate-300 truncate"
+                          : loading
+                          ? "text-slate-300/80 truncate"
+                          : "text-white/25 truncate"
+                      }
+                    >
+                      {system.label}
+                    </span>
+
+                    <div className="flex shrink-0 items-center gap-2">
+                      {loading && (
+                        <motion.span
+                          animate={{ opacity: [0.25, 1, 0.25] }}
+                          transition={{ duration: 1, repeat: Infinity }}
+                          className="h-1.5 w-1.5 rounded-full bg-cyan-300"
+                        />
+                      )}
+
+                      <span
+                        className={
+                          ready
+                            ? "text-cyan-300"
+                            : loading
+                            ? "text-cyan-300/70"
+                            : "text-white/20"
+                        }
+                      >
+                        {ready
+                          ? "READY"
+                          : loading
+                          ? `${system.verb}...`
+                          : system.verb}
+                      </span>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+
+            {/* -------------------------------- */}
+            {/* PROGRESS */}
+            {/* -------------------------------- */}
+            <div className="space-y-1.5 sm:space-y-2">
               <div className="h-1 w-full overflow-hidden rounded-full bg-white/10">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-[#7fd8e5] to-[#38BDF8] shadow-[0_0_12px_rgba(127,216,229,0.85)]"
+                  className="
+                    h-full
+                    bg-gradient-to-r
+                    from-cyan-400
+                    via-cyan-300
+                    to-blue-500
+                  "
                   animate={{ width: `${progress}%` }}
-                  transition={{ ease: "linear", duration: 0.1 }}
+                  transition={{ duration: 0.1, ease: "linear" }}
+                  style={{
+                    boxShadow: "0 0 14px rgba(34,211,238,0.8)",
+                  }}
                 />
               </div>
 
-              <div className="flex items-center justify-between text-[9px] tracking-[0.2em] text-white/50 sm:text-[11px] sm:tracking-[0.3em]">
-                <span className="tabular-nums">{progress.toString().padStart(3, "0")}%</span>
-                <span className="text-right">
-                  {progress >= 100 ? "Entering..." : progress >= 80 ? "Finalizing" : progress >= 50 ? "Loading" : "Initializing"}
+              <div className="
+                flex
+                items-center
+                justify-between
+                text-[8px] sm:text-[10px]
+                tracking-[0.18em] sm:tracking-[0.2em]
+                text-white/40
+              ">
+                <span className="tabular-nums">
+                  {progress.toString().padStart(3, "0")}%
+                </span>
+
+                <span>
+                  {progress >= 100
+                    ? "ENTERING SYSTEM"
+                    : progress >= 80
+                    ? "FINALIZING"
+                    : progress >= 50
+                    ? "CALIBRATING"
+                    : "INITIALIZING"}
                 </span>
               </div>
             </div>
 
-            <div className="mt-5 pt-4 border-t border-[#7fd8e5]/10 flex items-center justify-between text-[8px] tracking-[0.15em] text-[#C9D6DF]/40 sm:mt-6 sm:text-[9px] sm:tracking-[0.2em]">
+            {/* -------------------------------- */}
+            {/* FOOTER */}
+            {/* -------------------------------- */}
+            <div className="
+              mt-5 sm:mt-6
+              flex
+              items-center
+              justify-between
+              border-t
+              border-cyan-300/10
+              pt-3 sm:pt-4
+              text-[7px] sm:text-[9px]
+              tracking-[0.15em] sm:tracking-[0.18em]
+              text-white/30
+            ">
               <span>v7.0.2</span>
-              <span className="hidden sm:inline">SHIPFLOW © FLOWTECH</span>
+              <span className="hidden sm:block">SHIPFLOW © FLOWTECH</span>
               <span>SECURE</span>
             </div>
           </motion.div>

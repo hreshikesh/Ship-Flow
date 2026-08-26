@@ -1,11 +1,10 @@
-// WaterMark.jsx
 import { motion } from "framer-motion";
 
 function WaterMark() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none relative select-none overflow-hidden py-8 sm:py-12"
+      className="pointer-events-none relative select-none overflow-hidden py-10 sm:py-16"
     >
       {/* ============ LAYER 1 — DEEP OCEAN GRADIENT ============ */}
       <div
@@ -14,13 +13,13 @@ function WaterMark() {
           background: `
             radial-gradient(ellipse 90% 70% at 50% 100%, rgba(6,182,212,0.15) 0%, transparent 60%),
             radial-gradient(ellipse 60% 50% at 20% 50%, rgba(59,130,246,0.10) 0%, transparent 60%),
-            radial-gradient(ellipse 60% 50% at 80% 50%, rgba(139,92,246,0.06) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 50% at 80% 50%, rgba(16,185,129,0.08) 0%, transparent 60%),
             linear-gradient(to bottom, transparent 0%, rgba(6,182,212,0.03) 100%)
           `,
         }}
       />
 
-      {/* ============ LAYER 2 — CFD MESH GRID (like SHIPFLOW's computational grid) ============ */}
+      {/* ============ LAYER 2 — CFD MESH GRID ============ */}
       <div
         className="absolute inset-0 opacity-[0.08]"
         style={{
@@ -48,7 +47,7 @@ function WaterMark() {
         }}
       />
 
-      {/* ============ LAYER 4 — LIGHT RAYS (god rays from surface) ============ */}
+      {/* ============ LAYER 4 — LIGHT RAYS ============ */}
       <div className="absolute inset-0 overflow-hidden">
         <svg
           className="absolute inset-0 h-full w-full opacity-30"
@@ -62,7 +61,6 @@ function WaterMark() {
             </linearGradient>
           </defs>
 
-          {/* Ray 1 */}
           <polygon points="200,0 260,0 340,400 220,400" fill="url(#rayGrad)">
             <animate
               attributeName="opacity"
@@ -72,7 +70,6 @@ function WaterMark() {
             />
           </polygon>
 
-          {/* Ray 2 */}
           <polygon points="600,0 680,0 780,400 620,400" fill="url(#rayGrad)">
             <animate
               attributeName="opacity"
@@ -82,7 +79,6 @@ function WaterMark() {
             />
           </polygon>
 
-          {/* Ray 3 */}
           <polygon points="1000,0 1080,0 1200,400 1040,400" fill="url(#rayGrad)">
             <animate
               attributeName="opacity"
@@ -92,7 +88,6 @@ function WaterMark() {
             />
           </polygon>
 
-          {/* Ray 4 */}
           <polygon points="1200,0 1260,0 1380,400 1260,400" fill="url(#rayGrad)">
             <animate
               attributeName="opacity"
@@ -104,7 +99,7 @@ function WaterMark() {
         </svg>
       </div>
 
-      {/* ============ LAYER 5 — FLOW STREAMLINES (CFD-style curves) ============ */}
+      {/* ============ LAYER 5 — FLOW STREAMLINES ============ */}
       <div className="absolute inset-0 flex items-center justify-center">
         <svg
           className="h-full w-full opacity-[0.15]"
@@ -118,13 +113,12 @@ function WaterMark() {
               <stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
             </linearGradient>
             <linearGradient id="flowGrad2" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0" />
-              <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.8" />
-              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+              <stop offset="0%" stopColor="#10b981" stopOpacity="0" />
+              <stop offset="50%" stopColor="#10b981" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
             </linearGradient>
           </defs>
 
-          {/* Curved streamlines flowing left to right */}
           {[
             { y: 80, curve: 60, color: "flowGrad", duration: "4s", offset: 0 },
             { y: 130, curve: 40, color: "flowGrad2", duration: "5s", offset: 1 },
@@ -184,7 +178,7 @@ function WaterMark() {
         })}
       </div>
 
-      {/* ============ LAYER 7 — HEXAGON MESH POINTS (CFD nodes) ============ */}
+      {/* ============ LAYER 7 — HEXAGON MESH NODES ============ */}
       <div
         className="absolute inset-0 opacity-30"
         style={{
@@ -197,88 +191,13 @@ function WaterMark() {
         }}
       />
 
-      {/* ============ LAYER 8 — ANIMATED WAVE LINES ============ */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <svg
-          className="h-full w-full opacity-[0.1]"
-          viewBox="0 0 1440 300"
-          preserveAspectRatio="none"
-        >
-          <defs>
-            <linearGradient id="waveGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#06b6d4" stopOpacity="0" />
-              <stop offset="50%" stopColor="#06b6d4" stopOpacity="1" />
-              <stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
-            </linearGradient>
-          </defs>
+      {/* ============ LAYER 8 — TOP/BOTTOM GRADIENT EDGES ============ */}
+      <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-[#020b16] to-transparent" />
+      <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-[#020b16] to-transparent" />
 
-          <path
-            d="M 0 150 Q 180 120 360 150 T 720 150 T 1080 150 T 1440 150"
-            stroke="url(#waveGrad)"
-            strokeWidth="1.5"
-            fill="none"
-          >
-            <animate
-              attributeName="d"
-              values="
-                M 0 150 Q 180 120 360 150 T 720 150 T 1080 150 T 1440 150;
-                M 0 150 Q 180 180 360 150 T 720 150 T 1080 150 T 1440 150;
-                M 0 150 Q 180 120 360 150 T 720 150 T 1080 150 T 1440 150
-              "
-              dur="8s"
-              repeatCount="indefinite"
-            />
-          </path>
-
-          <path
-            d="M 0 180 Q 240 155 480 180 T 960 180 T 1440 180"
-            stroke="url(#waveGrad)"
-            strokeWidth="1"
-            fill="none"
-            opacity="0.6"
-          >
-            <animate
-              attributeName="d"
-              values="
-                M 0 180 Q 240 155 480 180 T 960 180 T 1440 180;
-                M 0 180 Q 240 205 480 180 T 960 180 T 1440 180;
-                M 0 180 Q 240 155 480 180 T 960 180 T 1440 180
-              "
-              dur="10s"
-              repeatCount="indefinite"
-            />
-          </path>
-
-          <path
-            d="M 0 210 Q 300 190 600 210 T 1200 210 T 1440 210"
-            stroke="url(#waveGrad)"
-            strokeWidth="1"
-            fill="none"
-            opacity="0.4"
-          >
-            <animate
-              attributeName="d"
-              values="
-                M 0 210 Q 300 190 600 210 T 1200 210 T 1440 210;
-                M 0 210 Q 300 230 600 210 T 1200 210 T 1440 210;
-                M 0 210 Q 300 190 600 210 T 1200 210 T 1440 210
-              "
-              dur="12s"
-              repeatCount="indefinite"
-            />
-          </path>
-        </svg>
-      </div>
-
-      {/* ============ LAYER 9 — TOP FADE EDGE ============ */}
-      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#020b16] to-transparent" />
-
-      {/* ============ LAYER 10 — BOTTOM FADE EDGE ============ */}
-      <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-[#020b16] to-transparent" />
-
-      {/* ============ HORIZONTAL SCAN LINE (like CFD post-processing) ============ */}
+      {/* ============ LAYER 9 — HORIZONTAL SCAN LINE ============ */}
       <motion.div
-        className="absolute inset-x-0 h-px"
+        className="absolute inset-x-0 h-px z-10"
         style={{
           background:
             "linear-gradient(90deg, transparent 0%, rgba(6,182,212,0.6) 50%, transparent 100%)",
@@ -294,87 +213,53 @@ function WaterMark() {
         }}
       />
 
-      {/* ============ MAIN WATERMARK TEXT ============ */}
+      {/* ============ LAYER 10 — MAIN WATERMARK TEXT (Zero-Clipping) ============ */}
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.3 }}
         transition={{ duration: 1.2, ease: "easeOut" }}
-        className="relative"
+        className="relative z-10 w-full px-2 text-center"
       >
-        <h2
-          className="
-            text-center font-black leading-[0.85] tracking-[0.05em]
-            text-[64px] sm:text-[100px] md:text-[140px] lg:text-[180px] xl:text-[220px] 2xl:text-[260px]
-            bg-gradient-to-b from-cyan-400/[0.12] via-cyan-500/[0.08] to-transparent
-            bg-clip-text text-transparent
-          "
-          style={{
-            WebkitTextStroke: "1px rgba(6,182,212,0.2)",
-            filter: "drop-shadow(0 0 40px rgba(6,182,212,0.15))",
-          }}
-        >
-          SHIPFLOW
-        </h2>
-      </motion.div>
-
-      {/* ============ TAGLINE UNDERNEATH ============ */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
-        className="relative -mt-2 flex flex-col items-center gap-3 pb-6 sm:-mt-4 sm:pb-8 lg:-mt-6"
-      >
-        <div className="flex items-center gap-3">
-          <span className="h-px w-8 bg-gradient-to-r from-transparent to-cyan-500/40 sm:w-16" />
-          <span className="h-1 w-1 rounded-full bg-cyan-500/40" />
-          <span className="text-[9px] font-semibold uppercase tracking-[0.5em] text-cyan-500/60 sm:text-[10px]">
-            CFD · Since 1992
-          </span>
-          <span className="h-1 w-1 rounded-full bg-cyan-500/40" />
-          <span className="h-px w-8 bg-gradient-to-l from-transparent to-cyan-500/40 sm:w-16" />
-        </div>
-      </motion.div>
-
-      {/* ============ FLOATING BUBBLES ============ */}
-      <div className="absolute inset-0 flex items-end justify-center overflow-hidden pb-4">
-        {[
-          { left: "8%", size: 3, duration: 6, delay: 0 },
-          { left: "18%", size: 2, duration: 8, delay: 1.5 },
-          { left: "28%", size: 4, duration: 7, delay: 3 },
-          { left: "38%", size: 2, duration: 9, delay: 0.5 },
-          { left: "48%", size: 3, duration: 6.5, delay: 2 },
-          { left: "58%", size: 2, duration: 8.5, delay: 4 },
-          { left: "68%", size: 3, duration: 7.5, delay: 1 },
-          { left: "78%", size: 2, duration: 8, delay: 2.5 },
-          { left: "88%", size: 4, duration: 6, delay: 3.5 },
-        ].map((bubble, i) => (
-          <motion.div
-            key={i}
-            className="absolute rounded-full border border-cyan-400/40 bg-cyan-400/10"
+        <h2 className="w-full text-center font-black leading-none tracking-tight text-[11.2vw] whitespace-nowrap select-none">
+          {/* SanDeb — Blue/Cyan Gradient */}
+          <span
+            className="bg-gradient-to-b from-sky-400/25 via-cyan-500/12 to-transparent bg-clip-text text-transparent"
             style={{
-              left: bubble.left,
-              width: bubble.size * 2,
-              height: bubble.size * 2,
-              bottom: 0,
-              boxShadow: `0 0 ${bubble.size * 2}px rgba(6,182,212,0.3)`,
+              WebkitTextStroke: "1.2px rgba(56, 189, 248, 0.35)",
+              filter: "drop-shadow(0 0 30px rgba(56, 189, 248, 0.18))",
             }}
-            animate={{
-              y: [0, -250, -500],
-              opacity: [0, 0.7, 0],
-              scale: [0.5, 1.2, 1.5],
-              x: [0, (i % 2 === 0 ? 20 : -20), 0],
+          >
+            SanDeb
+          </span>
+
+          {/* Tech — Emerald/Green Gradient (Logo Leaf Accent) */}
+          <span
+            className="bg-gradient-to-b from-emerald-400/25 via-green-500/12 to-transparent bg-clip-text text-transparent"
+            style={{
+              WebkitTextStroke: "1.2px rgba(52, 211, 153, 0.38)",
+              filter: "drop-shadow(0 0 30px rgba(52, 211, 153, 0.18))",
             }}
-            transition={{
-              duration: bubble.duration,
-              repeat: Infinity,
-              delay: bubble.delay,
-              ease: "easeOut",
-            }}
-          />
-        ))}
-      </div>
+          >
+            Tech
+          </span>
+        </h2>
+
+        {/* Official Tagline */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true, amount: 0.5 }}
+          transition={{ duration: 1, delay: 0.4, ease: "easeOut" }}
+          className="mt-3 flex items-center justify-center gap-2 sm:gap-6 font-mono text-[8px] sm:text-xs font-bold uppercase tracking-[0.3em] text-slate-500"
+        >
+          <span className="text-sky-400/80">Simulate</span>
+          <span className="text-slate-700">|</span>
+          <span className="text-cyan-400/80">Optimize</span>
+          <span className="text-slate-700">|</span>
+          <span className="text-emerald-400/80">Sustain</span>
+        </motion.div>
+      </motion.div>
 
       {/* ============ CORNER ORNAMENTS ============ */}
       <div className="absolute left-4 top-4 hidden opacity-30 sm:block">
@@ -399,30 +284,8 @@ function WaterMark() {
           <circle cx="28" cy="4" r="2" fill="#06b6d4" opacity="0.5" />
         </svg>
       </div>
-      <div className="absolute left-4 bottom-4 hidden opacity-30 sm:block">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-          <path
-            d="M 4 28 L 4 16 M 4 28 L 16 28"
-            stroke="#06b6d4"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-          <circle cx="4" cy="28" r="2" fill="#06b6d4" opacity="0.5" />
-        </svg>
-      </div>
-      <div className="absolute right-4 bottom-4 hidden opacity-30 sm:block">
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-          <path
-            d="M 28 28 L 28 16 M 28 28 L 16 28"
-            stroke="#06b6d4"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-          <circle cx="28" cy="28" r="2" fill="#06b6d4" opacity="0.5" />
-        </svg>
-      </div>
 
-      {/* ============ HUD READOUTS (like CFD software) ============ */}
+      {/* ============ HUD READOUTS ============ */}
       <div className="absolute left-4 top-16 hidden font-mono text-[8px] uppercase tracking-wider text-cyan-500/40 sm:block">
         <div>◆ Grid: 2.4M cells</div>
         <div>◆ Re: 1.2 × 10⁹</div>

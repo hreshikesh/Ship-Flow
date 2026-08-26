@@ -1,33 +1,20 @@
-import ShipflowArrival from "../components/shipflow/arrival/ShipflowArrival";
-import About from "../components/shipflow/aboutPreview/About";
-import SimulationSection from "../components/shipflow/simulation/SimulationSection";
-import NavalArchitects from "../components/shipflow/naval-architect/NavalArchitects";
-import InterfaceResults from "../components/shipflow/InterfaceResults/InterfaceResults";
-import GlobalPresence from "../components/shipflow/GlobalPresence/GlobalPresence";
-import ServiceSection from "../components/shipflow/ServiceSection/ServiceSection";
-import PublicationSection from "../components/shipflow/PublicationSection/PublicationSection";
-import NewsSection from "../components/shipflow/news/NewsSection";
-import Contact from "../components/shipflow/contact/Contact";
-import WaterMark from "../components/shipflow/watermark/WaterMark";
+import ShipflowArrival from "../components/shipflow/arrival/ShipflowArrival"; // Adjust path to match your folder
+import MarineSystem from "../components/shipflow/home/about/MarineSystem";
+import MarineTeam from "../components/shipflow/home/about/MarineTeam";
+import MarineContactBanner from "../components/shipflow/home/about/MarineContactBanner";
+import Watermark from "../components/shipflow/watermark/WaterMark";
 export default function Home() {
   return (
-    <main className="bg-[#02070d]">
+    <main className="relative min-h-screen bg-[#02070d] text-white">
+      {/* Cinematic Hero / Arrival Canvas */}
       <ShipflowArrival />
 
-
-      <div className="relative z-30 bg-[#02070d]">
-
-        <About />
-        <WaterMark />
-        <SimulationSection />
-        <NavalArchitects />
-        <InterfaceResults />
-        <GlobalPresence />
-        <ServiceSection />
-        <PublicationSection />
-        <NewsSection />
-        <Contact />
-
+      {/* Page Content */}
+      <div className="relative z-30 w-full bg-[#02070d]">
+        <MarineSystem />
+        <Watermark/>
+        <MarineTeam/>
+        <MarineContactBanner/>
       </div>
     </main>
   );
