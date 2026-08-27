@@ -1,51 +1,58 @@
 import { motion } from "framer-motion";
 import { MessageCircle } from "lucide-react";
 
-const WHATSAPP_NUMBER = "9108994209";
+// International format (+91 for India + 9108994209)
+const WHATSAPP_NUMBER = "919108994209";
+const PREFILLED_MESSAGE = encodeURIComponent(
+  "Hello SandebTech Marine, I would like to inquire about your services."
+);
 
 export default function WhatsAppButton() {
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}`;
+  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${PREFILLED_MESSAGE}`;
 
   return (
     <motion.a
       href={whatsappUrl}
       target="_blank"
       rel="noopener noreferrer"
-      aria-label="Chat with SandebTech on WhatsApp"
+      aria-label="Chat with SandebTech Marine on WhatsApp"
       initial={{ opacity: 0, scale: 0.7, y: 20 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{
         duration: 0.5,
-        delay: 1,
+        delay: 0.8,
         ease: [0.22, 1, 0.36, 1],
       }}
       whileHover={{ scale: 1.08 }}
-      whileTap={{ scale: 0.94 }}
+      whileTap={{ scale: 0.92 }}
       className="
         group
         fixed
-        bottom-5
-        right-5
+        right-3
+        top-[62vh]
         z-[90]
         flex
-        h-14
-        w-14
+        h-12
+        w-12
         items-center
         justify-center
         rounded-full
         bg-[#25D366]
         text-white
-        shadow-[0_8px_30px_rgba(37,211,102,0.28)]
-        transition-shadow
+        shadow-[0_6px_25px_rgba(37,211,102,0.35)]
+        transition-all
         duration-300
-        hover:shadow-[0_10px_40px_rgba(37,211,102,0.42)]
+        hover:shadow-[0_10px_35px_rgba(37,211,102,0.5)]
+        active:scale-95
+        xs:right-4
+        sm:top-auto
         sm:bottom-7
         sm:right-7
-        sm:h-15
-        sm:w-15
+        sm:h-14
+        sm:w-14
       "
     >
-      {/* Pulse */}
+      {/* Animated Background Pulse Ring */}
       <span
         className="
           absolute
@@ -53,24 +60,30 @@ export default function WhatsAppButton() {
           -z-10
           rounded-full
           bg-[#25D366]
-          opacity-30
+          opacity-40
           animate-ping
         "
       />
 
-      {/* Icon */}
+      {/* Responsive Icon */}
+      <MessageCircle
+        size={22}
+        strokeWidth={2.2}
+        className="transition-transform duration-300 group-hover:rotate-[-8deg] sm:hidden"
+      />
       <MessageCircle
         size={25}
         strokeWidth={2.2}
-        className="transition-transform duration-300 group-hover:rotate-[-8deg]"
+        className="hidden transition-transform duration-300 group-hover:rotate-[-8deg] sm:block"
       />
 
-      {/* Tooltip */}
+      {/* Desktop / Tablet Tooltip */}
       <span
         className="
           pointer-events-none
           absolute
-          right-[calc(100%+10px)]
+          right-[calc(100%+12px)]
+          hidden
           whitespace-nowrap
           rounded-lg
           border
@@ -91,9 +104,10 @@ export default function WhatsAppButton() {
           group-hover:translate-x-0
           group-hover:opacity-100
           translate-x-2
+          sm:block
         "
       >
-        Chat with SandebTech
+        Chat with SandebTech Marine
       </span>
     </motion.a>
   );

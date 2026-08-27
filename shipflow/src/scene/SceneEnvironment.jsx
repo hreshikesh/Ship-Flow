@@ -45,9 +45,7 @@ class EnvBoundary extends React.Component {
     return { failed: true };
   }
 
-  componentDidCatch(error) {
-    console.warn("[Environment] HDR failed:", error?.message);
-  }
+
 
   render() {
     return this.state.failed ? this.props.fallback : this.props.children;

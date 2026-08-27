@@ -138,7 +138,7 @@ function ShipLoading() {
             whiteSpace: "nowrap",
           }}
         >
-          Loading vessel...
+        
         </div>
       </Html>
     </group>
@@ -155,9 +155,7 @@ class ShipErrorBoundary extends React.Component {
     return { failed: true };
   }
 
-  componentDidCatch(error) {
-    console.warn("[Ship] Failed to load model:", error?.message || error);
-  }
+
 
   render() {
     if (this.state.failed) {
@@ -255,14 +253,7 @@ function ShipModel() {
 
     modelReadyRef.current = true;
 
-    console.info("[Ship] SHIPFLOW vessel ready", {
-      url: CONFIG.ship.url,
-      originalLength,
-      targetLength,
-      finalScale,
-      heroPosition: currentResponsive.heroPosition,
-      draft: currentResponsive.draft,
-    });
+   
   }, [model]);
 
   const handleShipClick = (event) => {

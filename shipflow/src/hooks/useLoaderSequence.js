@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
 import { SYSTEMS, TIMINGS } from "../libs/systems";
 
-/**
- * Drives the entire Chapter 0 sequence.
- * A single rAF loop keeps everything perfectly in sync — the console,
- * the progress line, the streamlines and the horizon are all reading
- * from the same clock, so nothing ever "cuts".
- */
+
 export function useLoaderSequence() {
   const [elapsed, setElapsed] = useState(0);
 

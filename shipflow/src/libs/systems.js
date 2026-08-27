@@ -50,7 +50,7 @@ export const SYSTEMS = [
 export const TIMINGS = {
   darkness: 900,       // Phase 1 — pure black
   awaken: 1000,        // Phase 2 — calibration line + "SHIPFLOW ENGINE"
-  bootStart: 1900,     // Phase 3 — console appears
+  bootStart: 1900,     
   freezeAt: 6100,      // brief freeze after 100%
   transitionAt: 6600,  // horizon expands, interface dissolves
   arrivalAt: 7600,     // ocean visible
