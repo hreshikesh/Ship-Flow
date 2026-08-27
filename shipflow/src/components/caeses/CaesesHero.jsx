@@ -4,7 +4,7 @@ import { ArrowUpRight } from "lucide-react";
 import SoftAurora from "./SoftAurora";
 
 const CAESES_URL = "https://www.caeses.com/applications/maritime";
-const YOUTUBE_VIDEO_URL = "https://www.youtube.com/embed/O1wSnnim6gs?rel=0&modestbranding=1&playsinline=1";
+
 
 const easeCustom = [0.16, 1, 0.3, 1];
 
@@ -108,13 +108,14 @@ function CaesesHero() {
             <div className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-cyan-400/40 pointer-events-none transition-colors duration-300 group-hover:border-cyan-400" />
 
             <iframe
-              src={YOUTUBE_VIDEO_URL}
+               src="https://watch.caeses.com/videos/embed/953071ee-3419-4541-bf88-c6f9faf20d89" 
               title="CAESES Maritime Engineering Showcase"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
               allowFullScreen
               loading="lazy"
               className="w-full h-full border-none block z-10 relative"
             />
+            
           </div>
 
           {/* Floating HUD Link badge */}

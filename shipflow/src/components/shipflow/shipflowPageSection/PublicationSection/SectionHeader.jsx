@@ -53,28 +53,7 @@ export default function SectionHeader() {
         development team, published in leading maritime journals.
       </motion.p>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ delay: 0.6, duration: 0.6 }}
-        className="mt-10 flex flex-wrap justify-center gap-8 sm:gap-12"
-      >
-        {[
-          { value: "50+", label: "Publications" },
-          { value: "824", label: "Total Citations" },
-          { value: "12", label: "Journals" },
-        ].map((stat) => (
-          <div key={stat.label} className="text-center">
-            <div className="text-2xl font-bold text-white sm:text-3xl">
-              {stat.value}
-            </div>
-            <div className="mt-1 text-xs uppercase tracking-wider text-slate-500">
-              {stat.label}
-            </div>
-          </div>
-        ))}
-      </motion.div>
+     
     </motion.div>
   );
 }

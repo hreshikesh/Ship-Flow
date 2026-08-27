@@ -66,7 +66,7 @@ function BrandIntro({ visible }) {
               transition={{ duration: 1, delay: 0.35, ease }}
               className="mt-4 text-center text-[9px] uppercase tracking-[0.3em] text-[#6FC3DF]/80 sm:mt-5 sm:text-[10px] sm:tracking-[0.36em] md:text-xs"
             >
-              By Naval Architects for Naval Architects
+              SIMULATE OPTIMIZE SUSTAIN 
             </motion.div>
 
             <motion.div

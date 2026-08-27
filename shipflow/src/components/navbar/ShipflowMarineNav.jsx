@@ -8,6 +8,7 @@ import {
   Cpu,
   Mail,
   Calendar,
+  ComputerIcon,
 } from "lucide-react";
 import { useArrivalState } from "../shipflow/arrival/arrivalStore";
 import logo from "../../assets/images/logo/logo1.webp";
@@ -18,6 +19,7 @@ const leftLinks = [
   { label: "Home", to: "/", icon: HomeIcon },
   { label: "Shipflow", to: "/shipflow", icon: Ship },
   { label: "CAESES", to: "/caeses", icon: Cpu },
+   { label: "Tutorial", to: "/tutorial", icon: ComputerIcon },
 ];
 
 const rightLinks = [

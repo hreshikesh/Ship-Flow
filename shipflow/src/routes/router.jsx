@@ -7,7 +7,7 @@ const Home = lazy(() => import("../pages/Home.jsx"));
 const Shipflow = lazy(() => import("../pages/Shipflow.jsx"));
 const Caeses = lazy(() => import("../pages/Caeses.jsx"));
 const NotFound = lazy(() => import("../pages/NotFound.jsx"));
-
+const Tutorial=lazy(()=>import("../pages/Tutorial.jsx"));
 const PageFallback = () => (
   <div className="fixed inset-0 z-[100] bg-[#02070d]" />
 );
@@ -28,6 +28,7 @@ export const router = createBrowserRouter([
       { path: "home", element: withSuspense(Home) },
       { path: "shipflow", element: withSuspense(Shipflow) },
       { path: "caeses", element: withSuspense(Caeses) },
+       { path: "tutorial", element: withSuspense(Tutorial) },
       { path: "*", element: withSuspense(NotFound) },
     ],
   },

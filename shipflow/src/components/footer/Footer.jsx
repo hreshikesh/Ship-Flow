@@ -1,3 +1,5 @@
+import React from "react";
+import { Link } from "react-router-dom";
 import {
   ArrowUpRight,
   Mail,
@@ -5,14 +7,14 @@ import {
   Phone,
   Waves,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import logo from "../../assets/images/logo/logo1.webp";
 
 const NAVIGATION = [
   { label: "Home", to: "/" },
-  { label: "SHIPFLOW", to: "/shipflow" },
-  { label: "CAESES", to: "/caeses" },
-  { label: "Contact", href: "https://sandebtech.com/contact" },
+  { label: "SHIPFLOW", to: "/solutions/cae-software" }, 
+  { label: "CAESES", to: "/solutions/cae-software" },
+  { label: "Tutorials", to: "/tutorials" },
+  { label: "Contact Us", to: "https://sandebtech.com/contact" },
   { label: "Book a Meeting", href: "https://sandebtech.com/meeting" },
 ];
 
@@ -34,14 +36,24 @@ const MARQUEE_ITEMS = [
 export default function Footer() {
   const year = new Date().getFullYear();
 
+  const handleInternalNavigation = () => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  };
+
   return (
     <footer
-      className="relative overflow-hidden border-t border-cyan-500/10 bg-[#020b16] text-white"
-      style={{ contentVisibility: "auto", containIntrinsicSize: "700px" }}
+      // relative + z-50 + isolate pulls the footer safely above your 3D ship canvas
+      // bg-[#020b16] acts as a solid mask to hide the 3D scene directly behind it
+      className="relative z-50 isolate overflow-hidden border-t border-cyan-500/10 bg-[#020b16] text-white"
+      style={{ 
+        contentVisibility: "auto", 
+        containIntrinsicSize: "700px",
+        pointerEvents: "auto" // Guarantees all interactive elements inside respond to mouse inputs
+      }}
     >
       {/* Background glows */}
       <div
-        className="pointer-events-none absolute inset-0"
+        className="pointer-events-none absolute inset-0 -z-10"
         aria-hidden="true"
         style={{
           background: `
@@ -53,7 +65,7 @@ export default function Footer() {
 
       {/* CFD grid */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.03]"
+        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.03]"
         aria-hidden="true"
         style={{
           backgroundImage:
@@ -62,8 +74,8 @@ export default function Footer() {
         }}
       />
 
-      {/* Top wave */}
-      <div className="absolute inset-x-0 top-0">
+      {/* Fluid Wave SVG Accent */}
+      <div className="absolute inset-x-0 top-0 pointer-events-none -z-10">
         <svg
           className="h-8 w-full"
           viewBox="0 0 1440 40"
@@ -86,11 +98,12 @@ export default function Footer() {
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
-        {/* Main grid — same content structure */}
+        {/* Main Grid */}
         <div className="grid gap-10 py-12 sm:py-16 md:grid-cols-2 lg:grid-cols-[1.2fr_0.6fr_1.1fr_1.1fr] lg:gap-8 lg:py-20">
+          
           {/* Brand */}
           <div className="flex flex-col items-start">
-            <Link to="/" className="inline-flex items-center">
+            <Link to="/" onClick={handleInternalNavigation} className="inline-flex items-center">
               <img
                 src={logo}
                 alt="SandebTech"
@@ -104,18 +117,17 @@ export default function Footer() {
               precision.
             </p>
 
-            <a
-              href="https://www.sandebtech.com"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to="/contact"
+              onClick={handleInternalNavigation}
               className="mt-4 inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-cyan-300 transition-colors hover:text-cyan-200"
             >
-              sandebtech.com
+              Get in Touch
               <ArrowUpRight size={12} />
-            </a>
+            </Link>
           </div>
 
-          {/* Navigation */}
+          {/* Navigation Links */}
           <div>
             <FooterHeading>Navigation</FooterHeading>
 
@@ -144,7 +156,12 @@ export default function Footer() {
                 }
 
                 return (
-                  <Link key={item.label} to={item.to} className={className}>
+                  <Link
+                    key={item.label}
+                    to={item.to}
+                    onClick={handleInternalNavigation}
+                    className={className}
+                  >
                     <span>{item.label}</span>
                   </Link>
                 );
@@ -152,7 +169,7 @@ export default function Footer() {
             </nav>
           </div>
 
-          {/* Contact */}
+          {/* Contact Details */}
           <div>
             <FooterHeading>Contact Us</FooterHeading>
 
@@ -189,7 +206,7 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Find Us map card */}
+          {/* Map Section */}
           <div>
             <FooterHeading>Find Us</FooterHeading>
 
@@ -210,7 +227,7 @@ export default function Footer() {
               <div className="absolute left-[55%] top-[-10%] h-[130%] w-px -rotate-[18deg] bg-cyan-300/10" />
               <div className="absolute left-[-10%] top-[65%] h-px w-[120%] -rotate-[8deg] bg-cyan-300/10" />
 
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
                 <span className="absolute -inset-3 animate-ping rounded-full bg-cyan-400/20" />
                 <div className="relative flex h-9 w-9 items-center justify-center rounded-full border border-cyan-300/40 bg-[#031019]/90 text-cyan-300 shadow-[0_0_25px_rgba(6,182,212,0.3)]">
                   <MapPin size={16} />
@@ -239,7 +256,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Marine marquee — SHIPFLOW / CAESES terms */}
+        {/* Marquee Ticker */}
         <div className="relative overflow-hidden border-y border-white/5 py-4">
           <style>{`
             @keyframes footerMarquee {

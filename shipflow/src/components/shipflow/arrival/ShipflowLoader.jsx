@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useArrivalState, setArrivalState } from "./arrivalStore";
-import logo from "../../../assets/images/logo/logo2.webp";
+import logo from "../../../assets/images/logo/logo1.webp";
 
 const SYSTEMS = [
   {
@@ -496,9 +496,9 @@ export default function ShipflowLoader({ onComplete }) {
               tracking-[0.15em] sm:tracking-[0.18em]
               text-white/30
             ">
-              <span>v7.0.2</span>
-              <span className="hidden sm:block">SHIPFLOW © FLOWTECH</span>
-              <span>SECURE</span>
+         
+              <span className="hidden sm:block">SIMULATE OPTIMIZE SUSTAIN</span>
+              
             </div>
           </motion.div>
         </motion.div>
