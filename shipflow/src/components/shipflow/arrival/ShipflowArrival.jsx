@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-
 import SceneCanvas from "../../../scene/SceneCanvas";
 import ArrivalRuntime, { HERO_SCROLL_DISTANCE } from "./ArrivalRuntime";
 import ShipflowCinematicUI from "./ShipflowCinematicUI";
@@ -13,37 +12,45 @@ export default function ShipflowArrival() {
       history.scrollRestoration = "manual";
     }
 
-    // 🔑 Resets to the initial stage (Shows ONLY brand intro logo, hides headline & cards until scroll)
     resetArrivalState();
-    window.scrollTo(0, 0);
+
+    requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    });
   }, []);
 
   return (
     <section
       id="shipflow-arrival"
-      className="relative min-h-screen bg-[#02070d]"
+      className="
+        relative min-h-[100dvh] bg-[#02070d]
+        touch-pan-y overscroll-y-contain
+      "
+      style={{
+        WebkitOverflowScrolling: "touch",
+      }}
     >
       <ArrivalRuntime />
 
-      {/* 3D WebGL Canvas Layer */}
+      {/* WebGL must never capture touch gestures but allow native scroll through */}
       <div
-        className="fixed inset-0 z-10 transition-opacity duration-700"
+        className="pointer-events-none fixed inset-0 z-10 transition-opacity duration-700"
         style={{
           opacity: heroComplete ? 0 : 1,
-          pointerEvents: "none",
+          touchAction: "pan-y",
         }}
       >
         <SceneCanvas />
       </div>
 
-      {/* Cinematic Overlays (Brand intro logo -> scroll -> left headline + right cards) */}
       <ShipflowCinematicUI />
 
+      {/* This is the real native scroll area */}
       <div
-        className="pointer-events-none relative z-20"
+        aria-hidden="true"
+        className="pointer-events-none relative z-20 touch-pan-y"
         style={{
           height: HERO_SCROLL_DISTANCE,
-          minHeight: "100vh",
         }}
       />
     </section>

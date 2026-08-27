@@ -19,12 +19,9 @@ import ErrorOverlay from "../ErrorOverlay";
 
 function getDeviceProfile() {
   if (typeof window === "undefined") return "desktop";
-
   const width = window.innerWidth;
-
   if (width < 768) return "mobile";
   if (width < 1180) return "tablet";
-
   return "desktop";
 }
 
@@ -120,7 +117,7 @@ export default function SceneCanvas() {
           height: "100dvh",
           minHeight: 420,
           overflow: "hidden",
-          touchAction: "none",
+          touchAction: "pan-y", /* 🚀 CHANGED FROM "none" TO "pan-y" */
           background: CONFIG.background,
         }}
       >

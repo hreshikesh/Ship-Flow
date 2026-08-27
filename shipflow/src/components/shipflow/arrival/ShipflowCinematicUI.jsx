@@ -37,6 +37,7 @@ function BrandIntro({ visible }) {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.8, ease }}
           className="pointer-events-none absolute inset-0 z-[80] overflow-hidden"
+          style={{ touchAction: "pan-y" }}
         >
           {/* Subtle radial wash so 3D background stays visible behind */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_48%,rgba(5,20,38,0.85)_0%,rgba(4,14,28,0.65)_35%,rgba(2,7,15,0.3)_70%,transparent_100%)]" />
@@ -226,6 +227,7 @@ function ProductShowcase({ visible }) {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.7, ease }}
           className="pointer-events-none absolute inset-0"
+          style={{ touchAction: "pan-y" }}
         >
           {/* DESKTOP */}
           <div className="pointer-events-none absolute bottom-[12vh] right-6 top-auto hidden w-[340px] flex-col justify-end gap-4 lg:flex xl:right-12 xl:w-[360px]">
@@ -301,7 +303,7 @@ function ProductShowcase({ visible }) {
           </div>
 
           {/* MOBILE */}
-          <div className="pointer-events-none absolute inset-x-4 bottom-28 md:hidden">
+          <div className="pointer-events-none absolute inset-x-4 bottom-28 md:hidden touch-pan-y">
             <div className="mx-auto grid max-w-[340px] grid-cols-2 gap-2.5">
               <MobileCard
                 name="SHIPFLOW"
@@ -376,6 +378,7 @@ export default function ShipflowCinematicUI() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.65, ease }}
             className="pointer-events-none fixed inset-0 z-40 overflow-hidden text-white"
+            style={{ touchAction: "pan-y" }} /* 🚀 Fixes Touch Overlay Interceptions */
           >
             {/* Subtle left gradient overlay that keeps 3D scene fully visible */}
             <div className="absolute inset-y-0 left-0 w-[42vw] bg-gradient-to-r from-[#010610]/60 via-[#030E1C]/20 to-transparent md:w-[48vw] pointer-events-none" />
