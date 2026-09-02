@@ -11,8 +11,8 @@ import logo from "../../assets/images/logo/logo1.webp";
 
 const NAVIGATION = [
   { label: "Home", to: "/" },
-  { label: "SHIPFLOW", to: "/solutions/cae-software" }, 
-  { label: "CAESES", to: "/solutions/cae-software" },
+  { label: "SHIPFLOW", to: "/shipflow" }, 
+  { label: "CAESES", to: "/caeses" },
   { label: "Tutorials", to: "/tutorials" },
   { label: "Contact Us", to: "https://sandebtech.com/contact" },
   { label: "Book a Meeting", href: "https://sandebtech.com/meeting" },

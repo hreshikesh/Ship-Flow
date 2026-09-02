@@ -147,23 +147,7 @@ export default function MarineContactBanner() {
               </a>
             </div>
 
-            {/* Trust stats */}
-            {/* <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-4 border-t border-white/5 pt-8">
-              {[
-                { value: "CFD", label: "Hydrodynamics" },
-                { value: "CAD", label: "Parametric Design" },
-                { value: "AI", label: "Optimization" },
-              ].map((stat) => (
-                <div key={stat.label}>
-                  <div className="text-2xl font-bold text-white sm:text-3xl">
-                    {stat.value}
-                  </div>
-                  <div className="mt-0.5 text-[11px] uppercase tracking-wider text-slate-500">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div> */}
+       
 
             {/* Trusted strip */}
             <div className="mt-8 flex items-center gap-3 text-[11px] uppercase tracking-wider text-slate-600">
@@ -194,16 +178,7 @@ function CFDShipScene() {
         }}
       />
 
-      {/* Status label */}
-      <div className="absolute left-4 top-4 z-10 flex items-center gap-2 rounded-md border border-cyan-500/30 bg-cyan-500/10 px-3 py-1.5 backdrop-blur-sm">
-        <span className="relative flex h-1.5 w-1.5">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-75" />
-          <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-cyan-400" />
-        </span>
-        <span className="font-mono text-[9px] uppercase tracking-wider text-cyan-300">
-          Live Analysis
-        </span>
-      </div>
+      
 
       {/* HUD readouts */}
       <div className="absolute right-4 top-4 z-10 rounded-md border border-white/10 bg-black/40 px-3 py-1.5 font-mono text-[10px] backdrop-blur-sm">

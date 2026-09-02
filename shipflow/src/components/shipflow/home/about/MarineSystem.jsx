@@ -36,7 +36,7 @@ export default function MarineSystem() {
   return (
     <section
       id="marine-system"
-      className="relative z-20  overflow-hidden bg-[#02070d] py-20 sm:py-28 lg:py-36"
+      className="relative z-20  overflow-hidden bg-[#02070d] py-12 sm:py-12 lg:py-12"
     >
       {/* Soft atmosphere */}
       <div

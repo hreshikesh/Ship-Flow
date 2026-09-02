@@ -1,45 +1,53 @@
-// hooks/useShipflowScroll.js
+// src/hooks/useShipflowScroll.js
 import { useEffect } from "react";
-import Lenis from "@studio-freight/lenis";
+import Lenis from "@studio-freight/lenis/types";
 
+/**
+ * Desktop-only smooth scroll.
+ * Skips entirely on mobile/touch to avoid Chrome freezes + low PageSpeed.
+ */
 export function useShipflowScroll() {
   useEffect(() => {
-    // ✅ Respect user's reduced motion preference
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
+    if (typeof window === "undefined") return;
 
-    // ✅ Skip Lenis on mobile — native scroll is faster
-    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    const isMobile =
+      window.innerWidth < 768 ||
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0;
 
-    if (prefersReducedMotion || isMobile) {
+    // Native scroll on phones/tablets — do not init Lenis
+    if (isMobile) {
+      document.documentElement.classList.remove("shipflow-lenis", "lenis-smooth");
       return;
     }
 
     const lenis = new Lenis({
-      duration: 1.0,           // ✅ shorter (was likely 1.2+)
-      easing: (t) => 1 - Math.pow(1 - t, 3),  // ✅ cheap easing
+      duration: 1.1,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      orientation: "vertical",
       smoothWheel: true,
-      smoothTouch: false,       // ✅ NEVER smooth touch — kills mobile
-      wheelMultiplier: 1,
-      touchMultiplier: 1.5,
-      infinite: false,
-      autoResize: true,
+      wheelMultiplier: 0.9,
+      touchMultiplier: 1,
     });
 
-    document.documentElement.classList.add("shipflow-lenis", "lenis-smooth");
+    const html = document.documentElement;
+    html.classList.add("shipflow-lenis", "lenis-smooth");
 
-    let rafId;
-    function raf(time) {
+    let rafId = 0;
+    const raf = (time) => {
       lenis.raf(time);
       rafId = requestAnimationFrame(raf);
-    }
+    };
     rafId = requestAnimationFrame(raf);
 
     return () => {
       cancelAnimationFrame(rafId);
       lenis.destroy();
-      document.documentElement.classList.remove("shipflow-lenis", "lenis-smooth");
+      html.classList.remove("shipflow-lenis", "lenis-smooth", "lenis-stopped");
     };
   }, []);
 }
+
+// Optional alias if anything else imports useLenis
+export const useLenis = useShipflowScroll;
+export default useShipflowScroll;

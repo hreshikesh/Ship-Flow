@@ -1,26 +1,30 @@
 import { useEffect } from "react";
-import { setArrivalFrameState, setArrivalState } from "./arrivalStore";
+import {
+  getArrivalState,
+  setArrivalFrameState,
+  setArrivalState,
+  advanceFromIntro,
+} from "./arrivalStore";
 
-export const HERO_SCROLL_DISTANCE = "220dvh";
+export const HERO_SCROLL_DISTANCE = "150dvh";
 
 export default function ArrivalRuntime() {
   useEffect(() => {
     let frame = null;
 
     const updateArrival = () => {
-      // 🚀 Mobile-friendly secure scroll calculation
-      const scrollY = 
-        window.pageYOffset || 
-        document.documentElement.scrollTop || 
-        window.scrollY || 
-        0;
-        
-      const viewportHeight = 
-        window.innerHeight || 
-        document.documentElement.clientHeight || 
-        800;
+      const current = getArrivalState();
 
-      const distance = viewportHeight * 1.2;
+      const scrollY =
+        window.pageYOffset ||
+        document.documentElement.scrollTop ||
+        window.scrollY ||
+        0;
+
+      const viewportHeight =
+        window.innerHeight || document.documentElement.clientHeight || 800;
+
+      const distance = viewportHeight * 1.5;
       const progress = Math.min(Math.max(scrollY / distance, 0), 1);
 
       setArrivalFrameState({
@@ -30,13 +34,60 @@ export default function ArrivalRuntime() {
         pageProgress: progress,
       });
 
+      // ─────────────────────────────────────────────
+      // SCROLL BACK UP → re-enter hero
+      // ─────────────────────────────────────────────
+      if (progress < 0.92) {
+        // Always restore cinematic layer when near/in hero range
+        if (current.heroComplete) {
+          setArrivalState({
+            heroComplete: false,
+            // keep userOverride if they already passed intro via click
+          });
+        }
+      }
+
+      // Finished hero zone (deep into page content)
+      if (progress >= 0.98) {
+        if (!current.heroComplete) {
+          setArrivalState({
+            heroComplete: true,
+            aboutUnlocked: true,
+            navVisible: true,
+          });
+        }
+        frame = null;
+        return;
+      }
+
+      // User clicked Enter / Skip — don't force intro back on
+      if (current.userOverride) {
+        setArrivalState({
+          heroComplete: false,
+          introVisible: false,
+          textVisible: true,
+          routeVisible: true,
+          ctaVisible: true,
+          navVisible: true,
+        });
+        frame = null;
+        return;
+      }
+
+      // Pure scroll path (no click yet)
+      if (progress >= 0.05 && current.introVisible) {
+        advanceFromIntro();
+        frame = null;
+        return;
+      }
+
       setArrivalState({
-        introVisible: progress < 0.08,
-        textVisible: progress >= 0.08 && progress < 0.95,
-        routeVisible: progress >= 0.12 && progress < 0.95,
-        ctaVisible: progress >= 0.2 && progress < 0.95,
-        navVisible: progress >= 0.16,
-        heroComplete: progress >= 0.98,
+        introVisible: progress < 0.05,
+        textVisible: progress >= 0.05,
+        routeVisible: progress >= 0.08,
+        ctaVisible: progress >= 0.12,
+        navVisible: progress >= 0.1,
+        heroComplete: false,
       });
 
       frame = null;
@@ -47,17 +98,13 @@ export default function ArrivalRuntime() {
       frame = requestAnimationFrame(updateArrival);
     };
 
-    // Ensure we handle scroll and orientation changes instantly
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
-    window.addEventListener("orientationchange", onScroll, { passive: true });
-
     updateArrival();
 
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
-      window.removeEventListener("orientationchange", onScroll);
       if (frame) cancelAnimationFrame(frame);
     };
   }, []);

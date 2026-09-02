@@ -4,7 +4,7 @@ function WaterMark() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none relative select-none overflow-hidden py-10 sm:py-16"
+      className="pointer-events-none relative select-none overflow-hidden py-5 sm:py-12"
     >
       {/* ============ LAYER 1 — DEEP OCEAN GRADIENT ============ */}
       <div

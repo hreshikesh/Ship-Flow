@@ -1,33 +1,35 @@
-// arrivalStore.js
 import { useState, useEffect } from "react";
 
 const INTRO_KEY = "sandeb-marine-intro-seen";
-const hasSeenIntro =
-  typeof window !== "undefined" && sessionStorage.getItem(INTRO_KEY) === "1";
+
+function readSeen() {
+  try {
+    return typeof window !== "undefined" && sessionStorage.getItem(INTRO_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+const seen = readSeen();
 
 const initialState = {
   elapsed: 0,
-  phase: hasSeenIntro ? "ready" : "loader",
-
-  loaderDone: hasSeenIntro,
-  introVisible: true, // 🔑 At the top of page: ONLY Brand Intro logo is visible
-
+  phase: "ready",
+  loaderDone: true,
+  introVisible: true,
   scroll: 0,
   scrollLimit: 1,
   scrollProgress: 0,
   pageProgress: 0,
-
   heroComplete: false,
-  aboutUnlocked: hasSeenIntro,
-
-  // 🔑 Left and right sections start as FALSE (Hidden until scroll)
+  aboutUnlocked: seen,
   textVisible: false,
   ctaVisible: false,
-  mouseEnabled: hasSeenIntro,
+  mouseEnabled: true,
   navVisible: false,
   routeVisible: false,
-
   sonarMode: false,
+  userOverride: false,
 };
 
 const state = { ...initialState };
@@ -47,55 +49,70 @@ export function getArrivalState() {
 export function setArrivalState(patch) {
   if (!hasChanged(patch)) return;
   Object.assign(state, patch);
-  listeners.forEach((listener) => listener({ ...state }));
+  listeners.forEach((l) => l({ ...state }));
 }
 
 export function setArrivalFrameState(patch) {
   Object.assign(state, patch);
 }
 
-// 🔑 Resets cleanly to top-of-hero (Logo only, text & cards hidden)
-export function resetArrivalState() {
-  const wasLoaderDone = state.loaderDone;
-  const wasAboutUnlocked = state.aboutUnlocked;
-
-  Object.assign(state, initialState);
-
-  if (wasLoaderDone) {
-    state.loaderDone = true;
-    state.phase = "ready";
-    state.introVisible = true;  // Logo intro is visible
-    state.textVisible = false;   // Left text hidden
-    state.routeVisible = false;  // Right cards hidden
-    state.ctaVisible = false;
-    state.navVisible = false;
-    state.heroComplete = false;
-  }
-  if (wasAboutUnlocked) {
-    state.aboutUnlocked = true;
-  }
-
-  listeners.forEach((listener) => listener({ ...state }));
-}
-
-// 🔑 Clears transient overlays safely on unmount
-export function resetTransientOverlay() {
+export function advanceFromIntro() {
   setArrivalState({
+    userOverride: true,
     introVisible: false,
-    textVisible: false,
-    routeVisible: false,
-    ctaVisible: false,
+    textVisible: true,
+    ctaVisible: true,
+    routeVisible: true,
+    navVisible: true,
+    heroComplete: false,
+    loaderDone: true,
+    phase: "ready",
+    mouseEnabled: true,
   });
 }
 
-// 🔑 EXPORT: Sets the exact top-of-page state (scroll = 0)
-export function prepareHeroState() {
+export function skipHeroToContent() {
+  try {
+    sessionStorage.setItem(INTRO_KEY, "1");
+  } catch {}
   setArrivalState({
-    heroComplete: false,
-    introVisible: true,   // Show brand intro logo first
-    textVisible: false,   // Left copy hidden until scroll
-    routeVisible: false,  // Right product cards hidden until scroll
+    userOverride: true,
+    introVisible: false,
+    textVisible: true,
+    ctaVisible: true,
+    routeVisible: true,
+    navVisible: true,
+    heroComplete: true,
+    loaderDone: true,
+    aboutUnlocked: true,
+    phase: "ready",
+    mouseEnabled: true,
+  });
+}
+
+export function resetArrivalState() {
+  Object.assign(state, {
+    ...initialState,
+    loaderDone: true,
+    phase: "ready",
+    introVisible: true,
+    textVisible: false,
+    routeVisible: false,
     ctaVisible: false,
+    navVisible: false,
+    heroComplete: false,
+    userOverride: false,
+  });
+  listeners.forEach((l) => l({ ...state }));
+}
+
+export function resetTransientOverlay() {}
+
+export function prepareHeroState() {
+  if (state.heroComplete || state.userOverride) return;
+  setArrivalState({
+    loaderDone: true,
+    phase: "ready",
   });
 }
 
@@ -106,10 +123,6 @@ export function subscribeArrival(listener) {
 
 export function useArrivalState() {
   const [snapshot, setSnapshot] = useState(() => ({ ...state }));
-
-  useEffect(() => {
-    return subscribeArrival(setSnapshot);
-  }, []);
-
+  useEffect(() => subscribeArrival(setSnapshot), []);
   return snapshot;
 }

@@ -1,19 +1,38 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import SceneCanvas from "../../../scene/SceneCanvas";
 import ArrivalRuntime, { HERO_SCROLL_DISTANCE } from "./ArrivalRuntime";
 import ShipflowCinematicUI from "./ShipflowCinematicUI";
-import { resetArrivalState, useArrivalState } from "./arrivalStore";
+import {
+  resetArrivalState,
+  useArrivalState,
+  setArrivalState,
+} from "./arrivalStore";
+
+class WebGLErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+  render() {
+    if (this.state.hasError) {
+      return <div className="absolute inset-0 bg-[#02070d]" />;
+    }
+    return this.props.children;
+  }
+}
 
 export default function ShipflowArrival() {
-  const { heroComplete } = useArrivalState();
+  const { heroComplete, loaderDone } = useArrivalState();
 
   useEffect(() => {
     if ("scrollRestoration" in history) {
       history.scrollRestoration = "manual";
     }
-
     resetArrivalState();
-
+    setArrivalState({ loaderDone: true, phase: "ready", heroComplete: false });
     requestAnimationFrame(() => {
       window.scrollTo({ top: 0, left: 0, behavior: "instant" });
     });
@@ -22,36 +41,33 @@ export default function ShipflowArrival() {
   return (
     <section
       id="shipflow-arrival"
-      className="
-        relative min-h-[100dvh] bg-[#02070d]
-        touch-pan-y overscroll-y-contain
-      "
-      style={{
-        WebkitOverflowScrolling: "touch",
-      }}
+      className="relative bg-[#02070d] touch-pan-y"
     >
+      <div className="absolute inset-0 bg-[#02070d]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(56,189,248,0.08),transparent_55%)]" />
+
       <ArrivalRuntime />
 
-      {/* WebGL must never capture touch gestures but allow native scroll through */}
+      {/* 3D stays mounted while in hero band; fades when complete */}
       <div
-        className="pointer-events-none fixed inset-0 z-10 transition-opacity duration-700"
+        className="pointer-events-none fixed inset-0 z-10 transition-opacity duration-500"
         style={{
-          opacity: heroComplete ? 0 : 1,
-          touchAction: "pan-y",
+          opacity: heroComplete ? 0 : loaderDone ? 1 : 0.85,
+          visibility: heroComplete ? "hidden" : "visible",
         }}
       >
-        <SceneCanvas />
+        <WebGLErrorBoundary>
+          <SceneCanvas />
+        </WebGLErrorBoundary>
       </div>
 
       <ShipflowCinematicUI />
 
-      {/* This is the real native scroll area */}
+      {/* ✅ ALWAYS keep scroll distance — never collapse to 0 */}
       <div
-        aria-hidden="true"
-        className="pointer-events-none relative z-20 touch-pan-y"
-        style={{
-          height: HERO_SCROLL_DISTANCE,
-        }}
+        aria-hidden
+        className="pointer-events-none relative z-20"
+        style={{ height: HERO_SCROLL_DISTANCE }}
       />
     </section>
   );

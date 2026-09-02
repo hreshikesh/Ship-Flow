@@ -14,7 +14,7 @@ export const simulationModules = [
     subtitle: "Potential Flow Solver",
     icon: Waves,
 
-    image: basicImage,
+    image: ransImage,
 
     result: "10–120 Seconds",
 
@@ -34,7 +34,7 @@ export const simulationModules = [
     subtitle: "RANS CFD Solver",
     icon: ShipWheel,
 
-    image: ransImage,
+    image: basicImage,
 
     result: "15–20 Minutes",
 

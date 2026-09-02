@@ -1,14 +1,18 @@
-import React from 'react'
-import { createRoot } from 'react-dom/client'
-import App from './App.jsx'
-import "./styles/globals.css"
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { RouterProvider } from "react-router-dom";
+import { router } from "./routes/router";
+import "./styles/globals.css";
 
+const root = document.getElementById("root");
 
-
-
-
-createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-)
+if (!root) {
+  document.body.innerHTML =
+    '<div style="padding:40px;font-family:sans-serif;background:#111;color:#f66">NO #root ELEMENT</div>';
+} else {
+  ReactDOM.createRoot(root).render(
+    <React.StrictMode>
+      <RouterProvider router={router} />
+    </React.StrictMode>
+  );
+}

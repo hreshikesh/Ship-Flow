@@ -1,3 +1,5 @@
+// Experience.jsx
+import { useMemo } from "react";
 import { OrbitControls } from "@react-three/drei";
 
 import Atmosphere from "./Atmosphere";
@@ -14,14 +16,23 @@ import PostEffects from "./PostEffects";
 import { CONFIG } from "./config";
 import ShipWake from "./ShipWake";
 
-export default function Experience() {
+export default function Experience({ quality = "desktop" }) {
   const orbit = CONFIG.DEBUG_ORBIT;
+
+  // Auto-detect mobile if quality isn't explicitly passed
+  const isMobile = useMemo(() => {
+    if (quality === "mobile") return true;
+    if (typeof window !== "undefined") {
+      return window.innerWidth < 768;
+    }
+    return false;
+  }, [quality]);
 
   return (
     <>
       <Atmosphere />
       <SceneEnvironment />
-      <Lighting />
+      <Lighting isMobile={isMobile} />
 
       {!orbit && <ArrivalDirector />}
 
@@ -37,15 +48,22 @@ export default function Experience() {
       )}
 
       <Sky />
-      <Clouds />
-      <Ocean />
+      
+      {/* 🚀 CRITICAL MOBILE OPTIMIZATIONS:
+          Strip heavy particle systems, secondary meshes & post-processing on mobile */}
+      {!isMobile && <Clouds />}
+      
+      <Ocean isMobile={isMobile} />
 
-      <ShipWake/>
-      <OceanDetails />
-      <Ship />
-      <Seagulls />
+      {!isMobile && <ShipWake />}
+      {!isMobile && <OceanDetails />}
+      
+      <Ship isMobile={isMobile} />
+      
+      {!isMobile && <Seagulls />}
 
-      <PostEffects />
+      {/* ❌ NEVER load PostEffects on mobile */}
+      {!isMobile && <PostEffects />}
     </>
   );
 }
